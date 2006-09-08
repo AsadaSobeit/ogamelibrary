@@ -1,0 +1,21 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Font Name="SimSun" Size="9" />
+  <Class Name="OGame.Server">
+    <Position X="0.5" Y="0.75" Width="1.5" />
+    <TypeIdentifier>
+      <FileName>server\Server.vb</FileName>
+      <HashCode>AAAAAgAAAACAAAAAAAAAAEAIBACAACAAAAAAAAAAAgQ=</HashCode>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="OGame.Empire">
+    <Position X="3" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <FileName>Empire.vb</FileName>
+      <HashCode>AGBAAAAAAAAAAUCQAQKEAAEIAAEIGAICgAAAACAEgAA=</HashCode>
+    </TypeIdentifier>
+    <Compartments>
+      <Compartment Name="Fields" Collapsed="true" />
+    </Compartments>
+  </Class>
+</ClassDiagram>

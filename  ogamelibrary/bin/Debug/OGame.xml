@@ -1,0 +1,214 @@
+﻿<?xml version="1.0"?>
+<doc>
+<assembly>
+<name>
+OGame
+</name>
+</assembly>
+<members>
+<member name="M:OGame.Formula.MetalProduction(System.Int32)">
+	<summary>
+ metal mine production rate
+ </summary>
+	<param name="Level">metal mine level</param>
+	<returns>production per hour</returns>
+	<remarks></remarks>
+</member><member name="M:OGame.Formula.CrystalProduction(System.Int32)">
+	<summary>
+ crystal mine production rate
+ </summary>
+	<param name="Level">crystal mine level</param>
+	<returns>production per hour</returns>
+	<remarks></remarks>
+</member><member name="M:OGame.Formula.DeuteriumProduction(System.Int32,System.Int32)">
+	<summary>
+ deuterium synthersizer production rate
+ </summary>
+	<param name="Level">deuterium synthesizer level</param>
+	<param name="HighestTemperature">highest temperature of the planet</param>
+	<returns>production per hour</returns>
+	<remarks></remarks>
+</member><member name="M:OGame.Formula.SolarplantProduction(System.Int32)">
+	<summary>
+ solar planet production rate
+ </summary>
+	<param name="Level">solar planet level</param>
+	<returns>production per hour</returns>
+	<remarks></remarks>
+</member><member name="M:OGame.Formula.FusionplantProduction(System.Int32)">
+	<summary>
+ fusion planet production rate
+ </summary>
+	<param name="Level">fusion planet level</param>
+	<returns>production per hour</returns>
+	<remarks></remarks>
+</member><member name="F:OGame.Planet._EmpireId">
+	<summary>
+ for database
+ </summary>
+	<remarks></remarks>
+</member><member name="F:OGame.Planet._OrdinalNumber">
+	<summary>
+ indicates: 0 - home planet, 1 - 1st colony, 2 - 2nd colony, ..., 9 - 9th colony
+ </summary>
+	<remarks></remarks>
+</member><member name="F:OGame.Planet._CommandList">
+	<summary>
+ 命令列表
+ </summary>
+	<remarks></remarks>
+</member><member name="F:OGame.Planet._BuildingLevelMap">
+	<summary>
+ 建筑等级
+ </summary>
+	<remarks></remarks>
+</member><member name="F:OGame.Planet._ResearchLevelMap">
+	<summary>
+ 科研等级
+ </summary>
+	<remarks></remarks>
+</member><member name="F:OGame.Planet._PlanetaryDefenseMap">
+	<summary>
+ 行星防御规模
+ </summary>
+	<remarks></remarks>
+</member><member name="F:OGame.Planet._StationaryFleetMap">
+	<summary>
+ 驻留舰队规模
+ </summary>
+	<remarks></remarks>
+</member><member name="M:OGame.Planet.#ctor(System.Int32,System.Int32,System.Int32,System.String,System.String,System.Boolean,System.Int32,System.Int32,System.String,System.String,System.String)">
+	<summary>
+	</summary>
+	<param name="galaxyIndex"></param>
+	<param name="systemIndex"></param>
+	<param name="planetIndex"></param>
+	<param name="planetName"></param>
+	<param name="planetActivity"></param>
+	<param name="hasMoon"></param>
+	<param name="debrisMetal"></param>
+	<param name="debrisCrystal"></param>
+	<param name="username"></param>
+	<param name="userStatus"></param>
+	<param name="userAlliance"></param>
+	<remarks></remarks>
+</member><member name="T:OGame.Command.ShipyardCommand">
+	<summary>
+ not used
+ see defense for building queue
+ see fleet for unit count
+ </summary>
+	<remarks></remarks>
+</member><member name="T:OGame.Page.FleetPage">
+	<summary>
+ 适用于驻留舰队
+ todo: 解析作业舰队
+ </summary>
+	<remarks></remarks>
+</member><member name="T:OGame.Level">
+	<summary>
+ todo: not used
+ </summary>
+	<remarks></remarks>
+</member><member name="F:OGame.Page.DefensePage._Queue">
+	<summary>
+ todo
+ </summary>
+	<remarks></remarks>
+</member><member name="F:OGame.Command.InfoCommand._Page">
+	<summary>
+ todo: implement proper page object
+ </summary>
+	<remarks></remarks>
+</member><member name="T:OGame.Command.InfoCommand">
+	<summary>
+ not implemented
+ </summary>
+	<remarks></remarks>
+</member><member name="P:OGame.My.Resources.Resources.ResourceManager">
+	<summary>
+  Returns the cached ResourceManager instance used by this class.
+</summary>
+</member><member name="P:OGame.My.Resources.Resources.Culture">
+	<summary>
+  Overrides the current thread's CurrentUICulture property for all
+  resource lookups using this strongly typed resource class.
+</summary>
+</member><member name="T:OGame.My.Resources.Resources">
+	<summary>
+  A strongly-typed resource class, for looking up localized strings, etc.
+</summary>
+</member><member name="T:OGame.Server1.Command.Executed">
+	<summary>
+ notify the command source
+ </summary>
+	<param name="html">response page</param>
+	<remarks></remarks>
+</member><member name="M:OGame.Command.CommandBase.Login(System.String,System.String,System.String)">
+	<summary>
+	</summary>
+	<param name="serverName"></param>
+	<param name="username"></param>
+	<param name="password"></param>
+	<returns>session id, or Nothing if login failed.</returns>
+	<remarks></remarks>
+</member><member name="M:OGame.Command.CommandBase.Post(System.String)">
+	<summary>
+ todo: simulate a web browser
+ </summary>
+	<param name="uriStr"></param>
+	<returns></returns>
+	<remarks></remarks>
+</member><member name="P:OGame.Command.CommandBase.UriFormat">
+	<summary>
+	</summary>
+	<value></value>
+	<returns>{0} is server name, {1} is session id</returns>
+	<remarks></remarks>
+</member><member name="P:OGame.Command.CommandBase.PlanetUriFormat">
+	<summary>
+	</summary>
+	<value></value>
+	<returns>{0} is server name, {1} is session id, {2} is current planet</returns>
+	<remarks></remarks>
+</member><member name="T:OGame.Page.TechLevelPage">
+	<summary>
+ 适用于建筑和研究两个页面
+ </summary>
+	<remarks></remarks>
+</member><member name="T:OGame.Server.Command.Executed">
+	<summary>
+ notify the command source
+ </summary>
+	<param name="html">response page</param>
+	<remarks></remarks>
+</member><member name="F:OGame.Empire.LoginWebClient">
+	<summary>
+ not used
+ </summary>
+	<remarks></remarks>
+</member><member name="F:OGame.Empire._Id">
+	<summary>
+ primary key in empire database table
+ </summary>
+	<remarks></remarks>
+</member><member name="F:OGame.Empire._PlanetList">
+	<summary>
+ 行星列表
+ </summary>
+	<remarks></remarks>
+</member><member name="F:OGame.Empire._ResearchLevelMap">
+	<summary>
+ 科研等级
+ </summary>
+	<remarks></remarks>
+</member><member name="P:OGame.Empire.AvailableCommandList">
+	<summary>
+ todo: not implemented
+ </summary>
+	<value></value>
+	<returns></returns>
+	<remarks></remarks>
+</member>
+</members>
+</doc>
