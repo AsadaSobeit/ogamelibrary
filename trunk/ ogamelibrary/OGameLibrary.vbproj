@@ -1,0 +1,169 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.50727</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{6B4CFAEB-E162-433A-BF5F-4DCED9C0F213}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <RootNamespace>OGame</RootNamespace>
+    <AssemblyName>OGame</AssemblyName>
+    <MyType>Windows</MyType>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <DefineDebug>true</DefineDebug>
+    <DefineTrace>true</DefineTrace>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DocumentationFile>OGame.xml</DocumentationFile>
+    <NoWarn>42016,41999,42017,42018,42019,42032,42036,42020,42021,42022</NoWarn>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <DefineDebug>false</DefineDebug>
+    <DefineTrace>true</DefineTrace>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DocumentationFile>OGame.xml</DocumentationFile>
+    <NoWarn>42016,41999,42017,42018,42019,42032,42036,42020,42021,42022</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Import Include="Microsoft.VisualBasic" />
+    <Import Include="System" />
+    <Import Include="System.Collections" />
+    <Import Include="System.Collections.Generic" />
+    <Import Include="System.Data" />
+    <Import Include="System.Diagnostics" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="command\CancelConstructCommand.vb">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="command\CancelResearchCommand.vb">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="command\CommandBase.vb">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="command\ConstructCommand.vb">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="command\ConstructionCenterCommand.vb">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="command\IResearchCommand.vb" />
+    <Compile Include="command\DefenseCommand.vb">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="command\DestructCommand.vb">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="command\FleetCommand.vb">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="command\GalaxyCommand.vb">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="command\IDefenseCommand.vb" />
+    <Compile Include="command\IFleetCommand.vb" />
+    <Compile Include="command\IGalaxyCommand.vb" />
+    <Compile Include="command\InfoCommand.vb">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="command\IOverviewCommand.vb" />
+    <Compile Include="command\IBuildingCommand.vb" />
+    <Compile Include="command\OverviewCommand.vb">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="command\ResearchCommand.vb">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="command\ResearchLabCommand.vb">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="command\ShipyardCommand.vb">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="command\TechnologyCommand.vb">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Dependency.vb" />
+    <Compile Include="Empire.vb" />
+    <Compile Include="Formula.vb" />
+    <Compile Include="Ogame.vb" />
+    <Compile Include="Level.vb" />
+    <Compile Include="My Project\AssemblyInfo.vb" />
+    <Compile Include="My Project\Application.Designer.vb">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Application.myapp</DependentUpon>
+    </Compile>
+    <Compile Include="My Project\Resources.Designer.vb">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Include="My Project\Settings.Designer.vb">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
+    <Compile Include="page\FleetPage.vb" />
+    <Compile Include="page\DefensePage.vb" />
+    <Compile Include="page\GalaxyPage.vb" />
+    <Compile Include="page\OverviewPage.vb" />
+    <Compile Include="page\PageBase.vb" />
+    <Compile Include="page\TechLevelPage.vb" />
+    <Compile Include="page\TechnologyPage.vb" />
+    <Compile Include="Planet.vb" />
+    <Compile Include="Server.vb" />
+    <Compile Include="Server1.vb" />
+    <Compile Include="ShipyardQueue.vb" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="My Project\Resources.resx">
+      <Generator>VbMyResourcesResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.vb</LastGenOutput>
+      <CustomToolNamespace>My.Resources</CustomToolNamespace>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ClassDiagram.cd">
+      <SubType>
+      </SubType>
+    </None>
+    <None Include="My Project\Application.myapp">
+      <Generator>MyApplicationCodeGenerator</Generator>
+      <LastGenOutput>Application.Designer.vb</LastGenOutput>
+    </None>
+    <None Include="My Project\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <CustomToolNamespace>My</CustomToolNamespace>
+      <LastGenOutput>Settings.Designer.vb</LastGenOutput>
+    </None>
+    <None Include="ogameDataSet.xsc">
+      <DependentUpon>ogameDataSet.xsd</DependentUpon>
+    </None>
+    <None Include="ogameDataSet.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="ogameDataSet.xss">
+      <DependentUpon>ogameDataSet.xsd</DependentUpon>
+    </None>
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.VisualBasic.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
