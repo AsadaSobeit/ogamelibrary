@@ -4,11 +4,12 @@ Namespace Command
 
     Public Class OverviewCommand
         Inherits CommandBase
-        Implements IOverviewCommand
 
         'http://ogame421.de/game/overview.php?session=a48d152c28e5&cp=33641573
         Private Const URI_FORMAT As String = "http://{0}/game/overview.php?session={1}"
         Private Const PLANET_URI_FORMAT As String = URI_FORMAT & "&cp={2}"
+
+        Public Event Complete(ByVal page As Page.OverviewPage)
 
         Private _Page As Page.OverviewPage
 
@@ -18,7 +19,7 @@ Namespace Command
 
         End Sub
 
-        Public Sub New(ByVal serverName As String, ByVal planetId As Integer)
+        Public Sub New(ByVal serverName As String, ByVal planetId As String)
 
             MyBase.New(serverName, planetId)
 
@@ -40,9 +41,11 @@ Namespace Command
 
             _Page = New Page.OverviewPage(html)
 
+            RaiseEvent Complete(_Page)
+
         End Sub
 
-        Public ReadOnly Property Page() As Page.OverviewPage Implements IOverviewCommand.Page
+        Public ReadOnly Property Page() As Page.OverviewPage
             Get
                 Return _Page
             End Get

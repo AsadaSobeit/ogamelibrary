@@ -1,15 +1,9 @@
 Imports System.Collections.ObjectModel
 Imports System.Collections.Generic
-Imports System.Net
-Imports System.Web
+Imports System.ComponentModel
 
+<DataObject(True)> _
 Public Class Empire
-
-    ''' <summary>
-    ''' not used
-    ''' </summary>
-    ''' <remarks></remarks>
-    Private WithEvents LoginWebClient As WebClient
 
     ''' <summary>
     ''' primary key in empire database table
@@ -17,9 +11,15 @@ Public Class Empire
     ''' <remarks></remarks>
     Private _Id As Integer
 
-    Private _ServerName As String
-    Private _Username As String
-    Private _Password As String
+    Private ReadOnly _ServerName As String
+    Private ReadOnly _Username As String
+    Private ReadOnly _Password As String
+
+    ''' <summary>
+    ''' 科研等级
+    ''' </summary>
+    ''' <remarks></remarks>
+    Private ReadOnly _ResearchLevelMap As Dictionary(Of Integer, Integer)
 
     Private _SessionId As String
 
@@ -31,13 +31,7 @@ Public Class Empire
 
     Private _PlanetCount As Integer
     Private _ServerTime As String
-    Private _LocalTime As DateTime
-
-    ''' <summary>
-    ''' 科研等级
-    ''' </summary>
-    ''' <remarks></remarks>
-    Private _ResearchLevelMap As Dictionary(Of Integer, Integer)
+    Private _LocalTime As Date
 
     Private _Points As Integer
     Private _Rank As Integer
@@ -49,19 +43,27 @@ Public Class Empire
     ''' 命令队列
     ''' </summary>
     ''' <remarks></remarks>
-    Private _CommandQueue As Queue(Of Command.CommandBase)
+    Private ReadOnly _CommandQueue As Queue(Of Command.CommandBase)
 
-    Public Sub New(ByVal serverName As String, ByVal username As String, ByVal password As String)
+    Public Event Online(ByVal sender As Empire)
+
+    Friend Sub New(ByVal serverName As String, ByVal username As String, ByVal password As String)
 
         _ServerName = serverName
         _Username = username
         _Password = password
+
+        _ResearchLevelMap = New Dictionary(Of Integer, Integer)()
+
+        _CommandQueue = New Queue(Of Command.CommandBase)()
 
     End Sub
 
     Public Sub Login()
 
         _SessionId = Command.CommandBase.Login(_ServerName, _Username, _Password)
+
+        RaiseEvent Online(Me)
 
     End Sub
 
@@ -70,29 +72,39 @@ Public Class Empire
         Login()
 
         _PlanetList = Planet.List(_ServerName, _SessionId)
+        '_PlanetList = Planet.List("ogame441.de", "ebdbafca33e2")
 
         _PlanetCount = _PlanetList.Count
 
-        With _PlanetList(0)
-            _ServerTime = .ServerTime
-            _LocalTime = .LocalTime
-        End With
-
-        _ResearchLevelMap = New Dictionary(Of Integer, Integer)
         For Each p As Planet In _PlanetList
-            With p.ResearchLevelMap
-                For Each gid As Integer In .Keys
-                    Dim level As Integer = .Item(gid)
-                    _ResearchLevelMap(gid) = level
-                Next
-            End With
+            With p
+                If .LocalTime > _LocalTime Then
+                    _LocalTime = .LocalTime
 
-            _Points = p.Points
-            _Rank = p.Rank
-            _EmpireCount = p.EmpireCount
+                    _ServerTime = .ServerTime
+                    _Points = .Points
+                    _Rank = .Rank
+                    _EmpireCount = .EmpireCount
+                End If
+
+                AddHandler .ResearchLabUpdated, AddressOf ResearchLabUpdatedEventHandler
+                AddHandler .EnqueueCommand, AddressOf EnqueueCommandEventHandler
+
+                .BeginLoadOverviewPage()
+                .BeginLoadOtherPages()
+            End With
         Next
 
     End Sub
+
+    <DataObjectMethod(DataObjectMethodType.Select, True)> _
+    Public Function ListPlanets() As ReadOnlyCollection(Of Planet)
+
+        Return New ReadOnlyCollection(Of Planet)(_PlanetList)
+
+    End Function
+
+#Region "properties"
 
     Public ReadOnly Property ServerName() As String
         Get
@@ -118,12 +130,6 @@ Public Class Empire
         End Get
     End Property
 
-    Public ReadOnly Property PlanetList() As ReadOnlyCollection(Of Planet)
-        Get
-            Return New ReadOnlyCollection(Of Planet)(_PlanetList)
-        End Get
-    End Property
-
     Public ReadOnly Property PlanetCount() As Integer
         Get
             Return _PlanetCount
@@ -144,7 +150,7 @@ Public Class Empire
 
     Public ReadOnly Property ResearchLevelMap() As Dictionary(Of Integer, Integer)
         Get
-            Return New Dictionary(Of Integer, Integer)(_ResearchLevelMap)
+            Return _ResearchLevelMap
         End Get
     End Property
 
@@ -172,6 +178,12 @@ Public Class Empire
         End Get
     End Property
 
+    Public ReadOnly Property CommandQueue() As Queue(Of Command.CommandBase)
+        Get
+            Return _CommandQueue
+        End Get
+    End Property
+
     ''' <summary>
     ''' todo: not implemented
     ''' </summary>
@@ -183,14 +195,24 @@ Public Class Empire
             Return Nothing
         End Get
     End Property
+#End Region
 
-    Public ReadOnly Property CommandQueue() As Queue(Of Command.CommandBase)
-        Get
-            Return _CommandQueue
-        End Get
-    End Property
+#Region "event handlers"
 
-    Private Sub LoginWebClient_DownloadStringCompleted(ByVal sender As Object, ByVal e As System.Net.DownloadStringCompletedEventArgs) Handles LoginWebClient.DownloadStringCompleted
+    Private Sub ResearchLabUpdatedEventHandler(ByVal levelMap As Dictionary(Of Integer, Integer))
+
+        With levelMap
+            For Each gid As Integer In .Keys
+                Dim level As Integer = .Item(gid)
+                _ResearchLevelMap(gid) = level
+            Next
+        End With
+    End Sub
+
+    Private Sub EnqueueCommandEventHandler(ByVal cmd As Command.CommandBase)
+
+        _CommandQueue.Enqueue(cmd)
 
     End Sub
+#End Region
 End Class

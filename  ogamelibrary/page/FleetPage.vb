@@ -18,6 +18,7 @@ Namespace Page
         Const LIST_ITEM_PATTERN As String = "name=""maxship(?<gid>\d+)"" value=""(?<count>\d+)"""
 
         Shared ReadOnly LIST_ITEM_REGEX As New Regex(LIST_ITEM_PATTERN, RegexOptions.Singleline)
+
 #End Region
 
         Private _UnitCountMap As Dictionary(Of Integer, Integer)
@@ -32,7 +33,7 @@ Namespace Page
 
             Dim success = MyBase.Parse()
             If success Then
-                _UnitCountMap = New Dictionary(Of Integer, Integer)
+                _UnitCountMap = New Dictionary(Of Integer, Integer)()
 
                 Dim m As Match = LIST_ITEM_REGEX.Match(Content)
                 While m.Success

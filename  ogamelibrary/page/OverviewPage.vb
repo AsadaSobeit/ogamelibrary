@@ -20,6 +20,13 @@ Namespace Page
         '(?<weekday>Sat|Sun|Mon|Tue|Web|Thu|Fri) (?<month>Sep|Oct|Nov|Dec|Jan|Feb|Mat|Apr|May|Jun|Jul|Aug) (?<day>\d{1,2}) (?<time>\d{1,2}:\d\d:\d\d)
         Const SERVER_TIME_PATTERN As String = "(?<servertime>(?<weekday>Sat|Sun|Mon|Tue|Web|Thu|Fri) (?<month>Sep|Oct|Nov|Dec|Jan|Feb|Mat|Apr|May|Jun|Jul|Aug) (?<day>\d{1,2}) (?<time>\d{1,2}:\d\d:\d\d))"
 
+        'todo: event list
+
+        '<img src="(?<skinhost>\S*?)/planeten/(?<planettype>\w+?).jpg" width="200" height="200">
+        'Const PLANET_TYPE_PATTERN As String = "<img src=""(?<skinhost>\S*?)/planeten/(?<planettype>\w+?).jpg"" width=""200"" height=""200"">"
+        '<img src="(?<largeimage>[^"]*?)" width="200" height="200">
+        Const LARGE_IMAGE_PATTERN As String = "<img src=""(?<largeimage>[^""]*?)"" width=""200"" height=""200"">"
+
         '[(]\s?<a title="[^"]*">\s?\d+ </a> / <a title="[^"]*">(\d+)\s</a>\s.*?[)]
         Const MAX_FIELDS_PATTERN As String = "[(]\s?<a title=""[^""]*"">\s?(?<developedfields>\d+) </a> / <a title=""[^""]*"">(?<maxfields>\d+)\s</a>\s.*?[)]"
 
@@ -37,6 +44,7 @@ Namespace Page
 
         Const OVERVIEW_PATTERN As String = PLANET_NAME_PATTERN & NONSENSE_PATTERN & _
                 SERVER_TIME_PATTERN & NONSENSE_PATTERN & _
+                LARGE_IMAGE_PATTERN & NONSENSE_PATTERN & _
                 MAX_FIELDS_PATTERN & NONSENSE_PATTERN & _
                 TEMPERATURE_PATTERN & NONSENSE_PATTERN & _
                 POSITION_PATTERN & NONSENSE_PATTERN & _
@@ -50,6 +58,8 @@ Namespace Page
 
         Private _PlanetName As String
         Private _ServerTime As String
+        'todo: event list
+        Private _LargeImageUri As String
         Private _MaxFields As Integer
         Private _LowestTemperature As Integer
         Private _HighestTemperature As Integer
@@ -74,6 +84,9 @@ Namespace Page
                 If m.Success Then
                     _PlanetName = m.Groups("planetname").Value
                     _ServerTime = m.Groups("servertime").Value
+                    'todo: event list
+                    '_PlanetType = m.Groups("planettype").Value
+                    _LargeImageUri = m.Groups("largeimage").Value
                     _MaxFields = m.Groups("maxfields").Value
                     _LowestTemperature = m.Groups("lowesttemperature").Value
                     _HighestTemperature = m.Groups("highesttemperature").Value
@@ -128,24 +141,6 @@ Namespace Page
             End Get
         End Property
 
-        Public ReadOnly Property PlanetName() As String
-            Get
-                Return _PlanetName
-            End Get
-        End Property
-
-        Public ReadOnly Property ServerTime() As String
-            Get
-                Return _ServerTime
-            End Get
-        End Property
-
-        Public ReadOnly Property MaxFields() As Integer
-            Get
-                Return _MaxFields
-            End Get
-        End Property
-
         Public ReadOnly Property LowestTemperature() As Integer
             Get
                 Return _LowestTemperature
@@ -155,6 +150,32 @@ Namespace Page
         Public ReadOnly Property HighestTemperature() As Integer
             Get
                 Return _HighestTemperature
+            End Get
+        End Property
+
+        Public ReadOnly Property MaxFields() As Integer
+            Get
+                Return _MaxFields
+            End Get
+        End Property
+
+        Public ReadOnly Property LargeImageUri() As String
+            Get
+                Return _LargeImageUri
+            End Get
+        End Property
+
+        'todo: event list
+
+        Public ReadOnly Property ServerTime() As String
+            Get
+                Return _ServerTime
+            End Get
+        End Property
+
+        Public ReadOnly Property PlanetName() As String
+            Get
+                Return _PlanetName
             End Get
         End Property
     End Class

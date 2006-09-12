@@ -17,6 +17,7 @@ Namespace Page
         Const LIST_ITEM_PATTERN As String = "<tr><td class=l><a href=infos[.]php[?]session=\w{12}&gid=(?<gid>\d+)>(?<name>.*?)</a></th><td class=l>(?:<font color=#(?<flag>\w{6})>(?<parentname>.*?)[(]\D+(?<parentlevel>\d+)[)]\n</font><br>)*</td></tr>"
 
         Shared ReadOnly LIST_ITEM_REGEX As New Regex(LIST_ITEM_PATTERN, RegexOptions.Singleline)
+
 #End Region
 
         'todo

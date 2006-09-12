@@ -23,18 +23,20 @@ Public Class Planet
                     If planetId = .CurrentPlanetId Then
                         planet.LoadOverview(currentOverviewPage)
                     Else
-                        'todo: asynchronous loading
-                        If Not planet.LoadOverviewPage(sessionId) Then
-                            planetList = Nothing
-                            Exit For
-                        End If
+                        'If Not planet.LoadOverviewPage(sessionId) Then
+                        '    planetList = Nothing
+                        '    Exit For
+                        'End If
+                        'asynchronous loading
+                        planet.BeginLoadOverviewPage()
                     End If
 
-                    'todo: asynchronous loading
-                    If Not planet.LoadOtherPages(sessionId) Then
-                        planetList = Nothing
-                        Exit For
-                    End If
+                    'If Not planet.LoadOtherPages(sessionId) Then
+                    '    planetList = Nothing
+                    '    Exit For
+                    'End If
+                    'asynchronous loading
+                    planet.BeginLoadOtherPages()
 
                     planetList.Add(planet)
                     ordinal += 1
@@ -55,42 +57,59 @@ Public Class Planet
     ''' <remarks></remarks>
     Private _EmpireId As Integer
 
-    Private _ServerName As String
-    Private _Id As String
+#Region "signature variables"
+
+    Private ReadOnly _ServerName As String
+    Private ReadOnly _Id As String
 
     ''' <summary>
-    ''' indicates: 0 - home planet, 1 - 1st colony, 2 - 2nd colony, ..., 9 - 9th colony
+    ''' colony index: 0 - home planet, 1 - 1st colony, 2 - 2nd colony, ..., 9 - 9th colony
     ''' </summary>
     ''' <remarks></remarks>
-    Private _OrdinalNumber As Integer
+    Private ReadOnly _OrdinalNumber As Integer
+
+#Region "informational command variables"
+
+    Private ReadOnly _OverviewCommand As Command.OverviewCommand
+    Private ReadOnly _ConstructionCenterCommand As Command.BuildingsCommand
+    Private ReadOnly _ResourcesCommand As Command.ResourcesCommand
+    Private ReadOnly _ResearchLabCommand As Command.ResearchLabCommand
+    Private ReadOnly _FleetCommand As Command.FleetCommand
+    Private ReadOnly _DefenseCommand As Command.DefenseCommand
+
+#End Region
+
+#End Region
+
+#Region "overview page variables"
+
+    Private _LocalTime As Date
+
+    Private _SmallImageUri As String
+    Private _Type As String
 
     Private _Metal As Integer
     Private _Crystal As Integer
     Private _Deuterium As Integer
 
+    Private _Name As String
+    Private _ServerTime As String
+    'todo: event list
+    Private _LargeImageUri As String
     Private _MaxFields As Integer
     Private _LowestTemperature As Integer
     Private _HighestTemperature As Integer
     Private _GalaxyIndex As Integer
     Private _SystemIndex As Integer
     Private _PlanetIndex As Integer
-    Private _Name As String
-    Private _ServerTime As String
-    Private _LocalTime As DateTime
 
     Private _Points As Integer
     Private _Rank As Integer
     Private _EmpireCount As Integer
 
-    Private _OverviewCommandList As List(Of Command.CommandBase)
-    Private _ConstructionCommandList As List(Of Command.CommandBase)
-    Private _ResourcesCommandList As List(Of Command.CommandBase)
-    Private _ResearchCommandList As List(Of Command.CommandBase)
-    Private _ShipyardCommandList As List(Of Command.CommandBase)
-    Private _FleetCommandList As List(Of Command.CommandBase)
-    Private _TechnologyCommandList As List(Of Command.CommandBase)
-    'Private _GalaxyCommandList As List(Of Command.Command)
-    Private _DefenseCommandList As List(Of Command.CommandBase)
+#End Region
+
+#Region "other page variables"
 
     ''' <summary>
     ''' ½¨ÖþµÈ¼¶
@@ -116,9 +135,11 @@ Public Class Planet
     ''' <remarks></remarks>
     Private _StationaryFleetMap As Dictionary(Of Integer, Integer)
 
-    'galaxy view
-    Private _PlanetType As Integer
-    Private _PlanetActivity As String
+#End Region
+
+#Region "galaxy view variables"
+
+    Private _Activity As String
     Private _HasMoon As Boolean
     Private _DebrisMetal As Integer
     Private _DebrisCrystal As Integer
@@ -126,11 +147,49 @@ Public Class Planet
     Private _UserStatus As String
     Private _UserAlliance As String
 
+#End Region
+
+#Region "events"
+
+    ''' <summary>
+    ''' update research levels
+    ''' </summary>
+    ''' <param name="levelMap"></param>
+    ''' <remarks></remarks>
+    Public Event ResearchLabUpdated(ByVal levelMap As Dictionary(Of Integer, Integer))
+
+    Public Event EnqueueCommand(ByVal cmd As Command.CommandBase)
+
+#End Region
+
+#Region "construtors"
+
+    ''' <summary>
+    ''' 
+    ''' </summary>
+    ''' <param name="serverName">server address</param>
+    ''' <param name="id">planet id</param>
+    ''' <param name="ordinal">colony index: 0 - home planet, 1 - 1st colony, 2 - 2nd colony, ..., 9 - 9th colony</param>
+    ''' <remarks></remarks>
     Private Sub New(ByVal serverName As String, ByVal id As String, ByVal ordinal As Integer)
 
         _ServerName = serverName
         _Id = id
         _OrdinalNumber = ordinal
+
+        _OverviewCommand = New Command.OverviewCommand(serverName, id)
+        _ConstructionCenterCommand = New Command.BuildingsCommand(serverName, id)
+        _ResourcesCommand = New Command.ResourcesCommand(serverName, id)
+        _ResearchLabCommand = New Command.ResearchLabCommand(serverName, id)
+        _FleetCommand = New Command.FleetCommand(serverName, id)
+        _DefenseCommand = New Command.DefenseCommand(serverName, id)
+
+        AddHandler _OverviewCommand.Complete, AddressOf OverviewCommand_Complete
+        AddHandler _ConstructionCenterCommand.Complete, AddressOf ConstructionCenterCommand_Complete
+        AddHandler _ResourcesCommand.Complete, AddressOf ResourcesCommand_Complete
+        AddHandler _ResearchLabCommand.Complete, AddressOf ResearchLabCommand_Complete
+        AddHandler _FleetCommand.Complete, AddressOf FleetCommand_Complete
+        AddHandler _DefenseCommand.Complete, AddressOf DefenseCommand_Complete
 
     End Sub
 
@@ -155,7 +214,7 @@ Public Class Planet
         _SystemIndex = systemIndex
         _PlanetIndex = planetIndex
         _Name = planetName
-        _PlanetActivity = planetActivity
+        _Activity = planetActivity
         _HasMoon = hasMoon
         _DebrisMetal = debrisMetal
         _DebrisCrystal = debrisCrystal
@@ -164,6 +223,21 @@ Public Class Planet
         _UserAlliance = userAlliance
 
     End Sub
+#End Region
+
+#Region "properites"
+
+    Public ReadOnly Property SmallImageUri() As String
+        Get
+            Return _SmallImageUri
+        End Get
+    End Property
+
+    Public ReadOnly Property Type() As String
+        Get
+            Return _Type
+        End Get
+    End Property
 
     Public ReadOnly Property Metal() As Integer
         Get
@@ -257,37 +331,37 @@ Public Class Planet
 
     Public ReadOnly Property BuildingLevelMap() As Dictionary(Of Integer, Integer)
         Get
-            Return New Dictionary(Of Integer, Integer)(_BuildingLevelMap)
+            Return _BuildingLevelMap
         End Get
     End Property
 
     Public ReadOnly Property ResearchLevelMap() As Dictionary(Of Integer, Integer)
         Get
-            Return New Dictionary(Of Integer, Integer)(_ResearchLevelMap)
+            Return _ResearchLevelMap
         End Get
     End Property
 
     Public ReadOnly Property PlanetaryDefenseMap() As Dictionary(Of Integer, Integer)
         Get
-            Return New Dictionary(Of Integer, Integer)(_PlanetaryDefenseMap)
+            Return _PlanetaryDefenseMap
         End Get
     End Property
 
     Public ReadOnly Property StationaryFleetMap() As Dictionary(Of Integer, Integer)
         Get
-            Return New Dictionary(Of Integer, Integer)(_StationaryFleetMap)
+            Return _StationaryFleetMap
         End Get
     End Property
 
-    Public ReadOnly Property Type() As Integer
+    Public ReadOnly Property LargeImageUri() As String
         Get
-            Return _PlanetType
+            Return _LargeImageUri
         End Get
     End Property
 
     Public ReadOnly Property Activity() As String
         Get
-            Return _PlanetActivity
+            Return _Activity
         End Get
     End Property
 
@@ -326,18 +400,29 @@ Public Class Planet
             Return _UserAlliance
         End Get
     End Property
+#End Region
 
+    ''' <summary>
+    ''' general information
+    ''' </summary>
+    ''' <param name="page"></param>
+    ''' <remarks></remarks>
     Private Sub LoadOverview(ByVal page As Page.OverviewPage)
 
         _LocalTime = Now
 
         With page
+            _SmallImageUri = .SmallImageUri
+            _Type = .PlanetType
+
             _Metal = .Metal
             _Crystal = .Crystal
             _Deuterium = .Deuterium
 
             _Name = .PlanetName
             _ServerTime = .ServerTime
+            'todo: event list
+            _LargeImageUri = .LargeImageUri
             _MaxFields = .MaxFields
             _LowestTemperature = .LowestTemperature
             _HighestTemperature = .HighestTemperature
@@ -350,6 +435,8 @@ Public Class Planet
             _EmpireCount = .EmpireCount
         End With
     End Sub
+
+#Region "debug functions"
 
     Private Function LoadOverviewPage(ByVal session As String) As Boolean
 
@@ -374,7 +461,7 @@ Public Class Planet
         Dim success = True
 
         'buildings
-        With New Command.ConstructionCenterCommand(_ServerName, _Id)
+        With New Command.BuildingsCommand(_ServerName, _Id)
             .Execute(session)
             With .Page
                 If .Parse() Then
@@ -434,4 +521,74 @@ Public Class Planet
         Return success
 
     End Function
+#End Region
+
+    Public Sub BeginLoadOverviewPage()
+
+        RaiseEvent EnqueueCommand(_OverviewCommand)
+
+    End Sub
+
+    Public Sub BeginLoadOtherPages()
+
+        RaiseEvent EnqueueCommand(_ConstructionCenterCommand)
+        RaiseEvent EnqueueCommand(_ResourcesCommand)
+        RaiseEvent EnqueueCommand(_ResearchLabCommand)
+        RaiseEvent EnqueueCommand(_FleetCommand)
+        RaiseEvent EnqueueCommand(_DefenseCommand)
+        'With _CommandQueue
+        '    .Enqueue(_ConstructionCenterCommand)
+        '    .Enqueue(_ResourcesCommand)
+        '    .Enqueue(_ResearchLabCommand)
+        '    .Enqueue(_FleetCommand)
+        '    .Enqueue(_DefenseCommand)
+        'End With
+    End Sub
+
+#Region "command completion event handlers"
+
+    Private Sub OverviewCommand_Complete(ByVal page As Page.OverviewPage)
+
+        If page.Parse() Then
+            LoadOverview(page)
+        End If
+    End Sub
+
+    Private Sub ConstructionCenterCommand_Complete(ByVal page As Page.TechLevelPage)
+
+        If page.Parse() Then
+            _BuildingLevelMap = page.LevelMap
+        End If
+    End Sub
+
+    Private Sub ResourcesCommand_Complete(ByVal page As Page.ResourcesPage)
+
+        'todo: production percentage
+
+    End Sub
+
+    Private Sub ResearchLabCommand_Complete(ByVal page As Page.TechLevelPage)
+
+        If page.Parse() Then
+            _ResearchLevelMap = page.LevelMap
+            RaiseEvent ResearchLabUpdated(_ResearchLevelMap)
+        End If
+    End Sub
+
+    Private Sub FleetCommand_Complete(ByVal page As Page.FleetPage)
+
+        If page.Parse() Then
+            _StationaryFleetMap = page.UnitCountMap
+        End If
+    End Sub
+
+    Private Sub DefenseCommand_Complete(ByVal page As Page.DefensePage)
+
+        If page.Parse() Then
+            _PlanetaryDefenseMap = page.UnitCountMap
+
+            'todo: shipyard queue
+        End If
+    End Sub
+#End Region
 End Class

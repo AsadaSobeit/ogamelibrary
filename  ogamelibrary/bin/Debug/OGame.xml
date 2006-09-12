@@ -49,12 +49,7 @@ OGame
 	<remarks></remarks>
 </member><member name="F:OGame.Planet._OrdinalNumber">
 	<summary>
- indicates: 0 - home planet, 1 - 1st colony, 2 - 2nd colony, ..., 9 - 9th colony
- </summary>
-	<remarks></remarks>
-</member><member name="F:OGame.Planet._CommandList">
-	<summary>
- 命令列表
+ colony index: 0 - home planet, 1 - 1st colony, 2 - 2nd colony, ..., 9 - 9th colony
  </summary>
 	<remarks></remarks>
 </member><member name="F:OGame.Planet._BuildingLevelMap">
@@ -77,6 +72,19 @@ OGame
  驻留舰队规模
  </summary>
 	<remarks></remarks>
+</member><member name="E:OGame.Planet.ResearchLabUpdated">
+	<summary>
+ update research levels
+ </summary>
+	<param name="levelMap"></param>
+	<remarks></remarks>
+</member><member name="M:OGame.Planet.#ctor(System.String,System.String,System.Int32)">
+	<summary>
+	</summary>
+	<param name="serverName">server address</param>
+	<param name="id">planet id</param>
+	<param name="ordinal">colony index: 0 - home planet, 1 - 1st colony, 2 - 2nd colony, ..., 9 - 9th colony</param>
+	<remarks></remarks>
 </member><member name="M:OGame.Planet.#ctor(System.Int32,System.Int32,System.Int32,System.String,System.String,System.Boolean,System.Int32,System.Int32,System.String,System.String,System.String)">
 	<summary>
 	</summary>
@@ -92,12 +100,11 @@ OGame
 	<param name="userStatus"></param>
 	<param name="userAlliance"></param>
 	<remarks></remarks>
-</member><member name="T:OGame.Command.ShipyardCommand">
+</member><member name="M:OGame.Planet.LoadOverview(OGame.Page.OverviewPage)">
 	<summary>
- not used
- see defense for building queue
- see fleet for unit count
+ general information
  </summary>
+	<param name="page"></param>
 	<remarks></remarks>
 </member><member name="T:OGame.Page.FleetPage">
 	<summary>
@@ -115,16 +122,6 @@ OGame
  todo
  </summary>
 	<remarks></remarks>
-</member><member name="F:OGame.Command.InfoCommand._Page">
-	<summary>
- todo: implement proper page object
- </summary>
-	<remarks></remarks>
-</member><member name="T:OGame.Command.InfoCommand">
-	<summary>
- not implemented
- </summary>
-	<remarks></remarks>
 </member><member name="P:OGame.My.Resources.Resources.ResourceManager">
 	<summary>
   Returns the cached ResourceManager instance used by this class.
@@ -138,12 +135,6 @@ OGame
 	<summary>
   A strongly-typed resource class, for looking up localized strings, etc.
 </summary>
-</member><member name="T:OGame.Server1.Command.Executed">
-	<summary>
- notify the command source
- </summary>
-	<param name="html">response page</param>
-	<remarks></remarks>
 </member><member name="M:OGame.Command.CommandBase.Login(System.String,System.String,System.String)">
 	<summary>
 	</summary>
@@ -182,14 +173,14 @@ OGame
  </summary>
 	<param name="html">response page</param>
 	<remarks></remarks>
-</member><member name="F:OGame.Empire.LoginWebClient">
-	<summary>
- not used
- </summary>
-	<remarks></remarks>
 </member><member name="F:OGame.Empire._Id">
 	<summary>
  primary key in empire database table
+ </summary>
+	<remarks></remarks>
+</member><member name="F:OGame.Empire._ResearchLevelMap">
+	<summary>
+ 科研等级
  </summary>
 	<remarks></remarks>
 </member><member name="F:OGame.Empire._PlanetList">
@@ -197,9 +188,9 @@ OGame
  行星列表
  </summary>
 	<remarks></remarks>
-</member><member name="F:OGame.Empire._ResearchLevelMap">
+</member><member name="F:OGame.Empire._CommandQueue">
 	<summary>
- 科研等级
+ 命令队列
  </summary>
 	<remarks></remarks>
 </member><member name="P:OGame.Empire.AvailableCommandList">
