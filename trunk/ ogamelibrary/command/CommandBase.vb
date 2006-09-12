@@ -1,4 +1,5 @@
 Imports System.Collections.Generic
+Imports System.IO
 Imports System.Net
 Imports System.Text.RegularExpressions
 Imports System.Text
@@ -11,8 +12,6 @@ Namespace Command
 
         Private Const SESSION_ID_PATTERN As String = "(?<=/game/index[.]php[?]session=)\w{12}"
         Private Shared ReadOnly SESSION_ID_REGEX As New Regex(SESSION_ID_PATTERN, RegexOptions.Singleline)
-
-        Private Const OGAME_DE_FORMAT As String = "ogame{0}.de"
 
         'http://ogame424.de/game/reg/login2.php?timestamp=0&v=2&login=rblade&pass=rathelerwh
         Private Const LOGIN_URI_FORMAT As String = "http://{0}/game/reg/login2.php?timestamp=0&v=2&login={1}&pass={2}"
@@ -32,7 +31,7 @@ Namespace Command
             Dim session As String
 
             Dim uriStr As String = String.Format(LOGIN_URI_FORMAT, serverName, username, password)
-            Dim loginUri As Uri = New Uri(uriStr)
+            'Dim loginUri As Uri = New Uri(uriStr)
             'Dim loginUri As Uri
             'With New ogameDataSetTableAdapters.CommandTableAdapter()
             '    Dim loginCmdTable As ogameDataSet.CommandDataTable = .GetCommand("login", ServerId)
@@ -48,8 +47,9 @@ Namespace Command
             'Dim loginResponse As WebResponse = loginRequest.GetResponse()
             'Me._Session = loginResponse.ResponseUri.Query
             'Dim str As String = New IO.StreamReader(loginResponse.GetResponseStream()).ReadToEnd()
-            Dim LoginWebClient As New WebClient()
-            Dim relayPage As String = LoginWebClient.DownloadString(loginUri)
+            'Dim LoginWebClient As New WebClient()
+            'Dim relayPage As String = LoginWebClient.DownloadString(loginUri)
+            Dim relayPage As String = Post(uriStr)
             Dim m As Match = SESSION_ID_REGEX.Match(relayPage)
             If m.Success Then
                 session = m.Value
@@ -65,9 +65,7 @@ Namespace Command
         Public Shared Function Logout(ByVal serverName As String, ByVal session As String) As String
 
             Dim uriStr As String = String.Format(LOGOUT_URI_FORMAT, serverName, session)
-            Dim logoutUri As Uri = New Uri(uriStr)
-            Dim LogoutWebClient As New WebClient()
-            Dim page As String = LogoutWebClient.DownloadString(logoutUri)
+            Dim page As String = Post(uriStr)
 
             Return page
 
@@ -79,25 +77,42 @@ Namespace Command
         ''' <param name="uriStr"></param>
         ''' <returns></returns>
         ''' <remarks></remarks>
-        Public Function Post(ByVal uriStr As String) As String
+        Public Shared Function Post(ByVal uriStr As String) As String
 
-            'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.0.6) Gecko/20060728 Firefox/1.5.0.6
-            'Dim uri As New Uri(uriStr)
-            'Dim request As HttpWebRequest = HttpWebRequest.Create(uri)
-            'With request
-            '    .Method = WebRequestMethods.Http.Post
+            Dim html As String
 
-            'End With
+            Try
+                Dim uri As New Uri(uriStr)
+                Dim request As HttpWebRequest = HttpWebRequest.Create(uri)
+                With request
+                    .Timeout = 10000
+                    .Method = WebRequestMethods.Http.Post
+                    .UserAgent = "Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.0.6) Gecko/20060728 Firefox/1.5.0.6"
+                End With
 
-            Return Nothing
+                Dim response As HttpWebResponse = request.GetResponse()
+
+                Dim sr As New StreamReader(response.GetResponseStream())
+                html = sr.ReadToEnd()
+                'Catch ex As WebException
+                '    If ex.Response Is Nothing Then
+                '        Throw New InvalidCommandException(uri, ex)
+                '    End If
+
+                '    Dim statusCode As HttpStatusCode = CType(ex.Response, HttpWebResponse).StatusCode
+            Catch ex As Exception
+                Throw New InvalidCommandException(uriStr, ex)
+            End Try
+
+            Return html
 
         End Function
 #End Region
 
-        Private _ServerName As String
+        Private ReadOnly _ServerName As String
 
         'http parameter cp. If it is set to Nothing, planetId refers to home planet.
-        Private _PlanetId As String
+        Private ReadOnly _PlanetId As String
 
         Public Sub New(ByVal serverName As String)
 
@@ -106,7 +121,7 @@ Namespace Command
 
         End Sub
 
-        Public Sub New(ByVal serverName As String, ByVal planetId As Integer)
+        Public Sub New(ByVal serverName As String, ByVal planetId As String)
 
             _ServerName = serverName
             _PlanetId = planetId
@@ -125,30 +140,31 @@ Namespace Command
             End Get
         End Property
 
-        Public Sub Execute(ByVal session As String)
+        Public Sub Execute(ByVal sessionId As String)
 
-            Dim wb As New Net.WebClient()
-            Dim uri As Uri = GetUri(session)
+            'Dim wb As New Net.WebClient()
+            'Dim uri As Uri = GetUri(session)
 
-            Dim utf8Bytes As Byte() = wb.DownloadData(uri)
-            Dim unicodeBytes As Byte() = Encoding.Convert(Encoding.UTF8, Encoding.Unicode, utf8Bytes)
-            Dim unicodeString As String = Encoding.Unicode.GetString(unicodeBytes)
+            'Dim utf8Bytes As Byte() = wb.DownloadData(uri)
+            'Dim unicodeBytes As Byte() = Encoding.Convert(Encoding.UTF8, Encoding.Unicode, utf8Bytes)
+            'Dim unicodeString As String = Encoding.Unicode.GetString(unicodeBytes)
 
-            SetPageContent(unicodeString)
+            'SetPageContent(unicodeString)
+            Dim uriStr As String = GetUri(sessionId)
+
+            Dim html As String = Post(uriStr)
+
+            SetPageContent(html)
 
         End Sub
 
-        Protected Function GetUri(ByVal session As String) As Uri
+        Protected Function GetUri(ByVal session As String) As String
 
-            Dim cmd As String
             If _PlanetId Is Nothing Then
-                cmd = String.Format(UriFormat, _ServerName, session)
+                GetUri = String.Format(UriFormat, _ServerName, session)
             Else
-                cmd = String.Format(PlanetUriFormat, _ServerName, session, _PlanetId)
+                GetUri = String.Format(PlanetUriFormat, _ServerName, session, _PlanetId)
             End If
-
-            Return New Uri(cmd)
-
         End Function
 
         ''' <summary>

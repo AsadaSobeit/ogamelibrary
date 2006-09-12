@@ -34,7 +34,7 @@ Public Class Server
     Private recentEmpire As Empire = Nothing
 
     Private WithEvents tmr As New Timers.Timer(5000.0#)
-    Private startTime As DateTime = Nothing
+    Private startTime As Date = Nothing
 
     Private ReadOnly empireQueue As New Queue(Of Empire)
     Private ReadOnly empireDictionary As New Dictionary(Of String, Empire)

@@ -4,7 +4,6 @@ Namespace Command
 
     Public Class GalaxyCommand
         Inherits CommandBase
-        Implements IGalaxyCommand
 
         Private Const URI_FORMAT As String = "http://{{0}}/game/galaxy.php?session={{1}}&galaxy={0}&system={1}"
         Private Const PLANET_URI_FORMAT As String = URI_FORMAT & "&cp={{2}}"
@@ -13,15 +12,6 @@ Namespace Command
         Private _SystemIndex As Integer
 
         Private _Page As Page.GalaxyPage
-
-        Public Sub New(ByVal serverName As String, ByVal galaxyIndex As Integer, ByVal systemIndex As Integer)
-
-            MyBase.New(serverName)
-
-            _GalaxyIndex = galaxyIndex
-            _SystemIndex = systemIndex
-
-        End Sub
 
         Public Sub New(ByVal serverName As String, ByVal planetId As Integer, ByVal galaxyIndex As Integer, ByVal systemIndex As Integer)
 
@@ -46,25 +36,25 @@ Namespace Command
 
         Public ReadOnly Property NextGalaxy() As GalaxyCommand
             Get
-                Return New GalaxyCommand(PlanetId, _GalaxyIndex + 1, _SystemIndex)
+                Return New GalaxyCommand(ServerName, PlanetId, _GalaxyIndex + 1, _SystemIndex)
             End Get
         End Property
 
         Public ReadOnly Property PrevGalaxy() As GalaxyCommand
             Get
-                Return New GalaxyCommand(PlanetId, _GalaxyIndex - 1, _SystemIndex)
+                Return New GalaxyCommand(ServerName, PlanetId, _GalaxyIndex - 1, _SystemIndex)
             End Get
         End Property
 
         Public ReadOnly Property NextSystem() As GalaxyCommand
             Get
-                Return New GalaxyCommand(PlanetId, _GalaxyIndex, _SystemIndex + 1)
+                Return New GalaxyCommand(ServerName, PlanetId, _GalaxyIndex, _SystemIndex + 1)
             End Get
         End Property
 
         Public ReadOnly Property PrevSystem() As GalaxyCommand
             Get
-                Return New GalaxyCommand(PlanetId, _GalaxyIndex, _SystemIndex - 1)
+                Return New GalaxyCommand(ServerName, PlanetId, _GalaxyIndex, _SystemIndex - 1)
             End Get
         End Property
 
@@ -74,7 +64,7 @@ Namespace Command
 
         End Sub
 
-        Public ReadOnly Property Page() As Page.GalaxyPage Implements IGalaxyCommand.Page
+        Public ReadOnly Property Page() As Page.GalaxyPage
             Get
                 Return _Page
             End Get

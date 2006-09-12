@@ -17,6 +17,7 @@ Namespace Page
         Const LIST_ITEM_PATTERN As String = "(?:<tr><td class=l>(?<a><a href=infos[.]php[?]session=\w{12}&gid=(?<gid>\d+).*?>).*?</td><td class=l>\k<a>.*?</a>(?:</a> [(]\D+(?<level>\d+) ?[)])?<br>.*?(?:</td>)?<td class=[lk]>.*?</td></tr>(?:</tr>)*)"
 
         Shared ReadOnly LIST_ITEM_REGEX As New Regex(LIST_ITEM_PATTERN, RegexOptions.Singleline)
+
 #End Region
 
         Private _LevelMap As Dictionary(Of Integer, Integer)

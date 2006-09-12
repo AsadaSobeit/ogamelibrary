@@ -20,7 +20,7 @@ Public Module Formula
     'Speed
     Public Function RocketFlightInterval(ByVal Distance As Integer) As Integer
 
-        RocketFlightInterval = 30 + 60 * Distance
+        Return 30 + 60 * Distance
     End Function
 #End Region
 
@@ -28,7 +28,7 @@ Public Module Formula
 
     Public Function SatellitePowerGeneration(ByVal MaxTemperature As Integer) As Integer
 
-        SatellitePowerGeneration = MaxTemperature / 4 + 20
+        Return MaxTemperature / 4 + 20
     End Function
 #End Region
 
@@ -141,9 +141,113 @@ Public Module Formula
     End Function
 #End Region
 
-    'calculation of the buildingsbuildtimes:
-    '[(crys+met) / 2500] * [1 / (level robofactory+1)] * 0,5^level nani
-    Public Function BuildingTime() As Single
+    ''' <summary>
+    ''' calculate how many hours does it cost to construct a building
+    ''' </summary>
+    ''' <param name="metal">metal required</param>
+    ''' <param name="crystal">crystal required</param>
+    ''' <param name="roboticsFactoryLevel">level of robotics factory</param>
+    ''' <param name="naniteFactoryLevel">level of nanite factory</param>
+    ''' <returns></returns>
+    ''' <remarks></remarks>
+    Public Function BuildingsHour(ByVal metal As Integer, ByVal crystal As Integer, ByVal roboticsFactoryLevel As Integer, ByVal naniteFactoryLevel As Integer) As Double
+
+        Return (metal + crystal) / 2500 / (roboticsFactoryLevel + 1) * 0.5 ^ naniteFactoryLevel
+
+    End Function
+
+    ''' <summary>
+    ''' calculate how many hours does it cost to build a ship or battery
+    ''' </summary>
+    ''' <param name="metal">metal required</param>
+    ''' <param name="crystal">crystal required</param>
+    ''' <param name="shipyardLevel">level of shipyard</param>
+    ''' <param name="naniteFactoryLevel">level of nanite factory</param>
+    ''' <returns></returns>
+    ''' <remarks></remarks>
+    Public Function ShipyardHour(ByVal metal As Integer, ByVal crystal As Integer, ByVal shipyardLevel As Integer, ByVal naniteFactoryLevel As Integer) As Double
+
+        Return (metal + crystal) / 2500 / (shipyardLevel + 1) * 0.5 ^ naniteFactoryLevel
+
+    End Function
+
+    ''' <summary>
+    ''' calculate how many hours does it cost to complete a research
+    ''' </summary>
+    ''' <param name="metal">metal required</param>
+    ''' <param name="crystal">crystal required</param>
+    ''' <param name="labLevel">level of research laboratory</param>
+    ''' <returns></returns>
+    ''' <remarks></remarks>
+    Public Function ResearchLabHour(ByVal metal As Integer, ByVal crystal As Integer, ByVal labLevel As Integer) As Double
+
+        Return (metal + crystal) / (1 + labLevel) / 1000
+
+    End Function
+
+    Public Function MetalMineMetalCost(ByVal level As Integer) As Integer
+
+        Return 60 * 1.5 ^ (level - 1)
+
+    End Function
+
+    Public Function MetalMineCrystalCost(ByVal level As Integer) As Integer
+
+        Return 15 * 1.5 ^ (level - 1)
+
+    End Function
+
+    Public Function CrystalMineMetalCost(ByVal level As Integer) As Integer
+
+        Return 48 * 1.6 ^ (level - 1)
+
+    End Function
+
+    Public Function CrystalMineCrystalCost(ByVal level As Integer) As Integer
+
+        Return 24 * 1.6 ^ (level - 1)
+
+    End Function
+
+    Public Function DeuteriumSynthesizerMetalCost(ByVal level As Integer) As Integer
+
+        Return 225 * 1.5 ^ (level - 1)
+
+    End Function
+
+    Public Function DeuteriumSynthesizerCrystalCost(ByVal level As Integer) As Integer
+
+        Return 75 * 1.5 ^ (level - 1)
+
+    End Function
+
+    Public Function SolarPlantMetalCost(ByVal level As Integer) As Integer
+
+        Return 75 * 1.5 ^ (level - 1)
+
+    End Function
+
+    Public Function SolarPlantCrystalCost(ByVal level As Integer) As Integer
+
+        Return 30 * 1.5 ^ (level - 1)
+
+    End Function
+
+    Public Function FusionPlantMetalCost(ByVal level As Integer) As Integer
+
+        Return 900 * 1.8 ^ (level - 1)
+
+    End Function
+
+    Public Function FusionPlantCrystalCost(ByVal level As Integer) As Integer
+
+        Return 360 * 1.8 ^ (level - 1)
+
+    End Function
+
+    Public Function FusionPlantDeuteriumCost(ByVal level As Integer) As Integer
+
+        Return 180 * 1.8 ^ (level - 1)
 
     End Function
 End Module

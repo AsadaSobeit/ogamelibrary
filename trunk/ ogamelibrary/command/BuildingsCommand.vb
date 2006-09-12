@@ -2,22 +2,17 @@ Imports Microsoft.VisualBasic
 
 Namespace Command
 
-    Public Class ConstructionCenterCommand
+    Public Class BuildingsCommand
         Inherits CommandBase
-        Implements IBuildingCommand
 
         Private Const URI_FORMAT As String = "http://{0}/game/b_building.php?session={1}"
         Private Const PLANET_URI_FORMAT As String = URI_FORMAT & "&cp={2}"
 
         Private _Page As Page.TechLevelPage
 
-        Public Sub New(ByVal serverName As String)
+        Public Event Complete(ByVal page As Page.TechLevelPage)
 
-            MyBase.New(serverName)
-
-        End Sub
-
-        Public Sub New(ByVal serverName As String, ByVal planetId As Integer)
+        Public Sub New(ByVal serverName As String, ByVal planetId As String)
 
             MyBase.New(serverName, planetId)
 
@@ -39,9 +34,11 @@ Namespace Command
 
             _Page = New Page.TechLevelPage(html)
 
+            RaiseEvent Complete(_Page)
+
         End Sub
 
-        Public ReadOnly Property Page() As Page.TechLevelPage Implements IBuildingCommand.Page
+        Public ReadOnly Property Page() As Page.TechLevelPage
             Get
                 Return _Page
             End Get

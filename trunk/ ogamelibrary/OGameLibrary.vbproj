@@ -43,7 +43,7 @@
     <Import Include="System.Diagnostics" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="command\CancelConstructCommand.vb">
+    <Compile Include="command\CancelConstructionCommand.vb">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="command\CancelResearchCommand.vb">
@@ -55,14 +55,16 @@
     <Compile Include="command\ConstructCommand.vb">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="command\ConstructionCenterCommand.vb">
+    <Compile Include="command\BuildingsCommand.vb">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="command\IResearchCommand.vb" />
+    <Compile Include="InvalidSessionException.vb" />
+    <Compile Include="InvalidCommandException.vb" />
+    <Compile Include="command\ResourcesCommand.vb" />
     <Compile Include="command\DefenseCommand.vb">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="command\DestructCommand.vb">
+    <Compile Include="command\DestroyCommand.vb">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="command\FleetCommand.vb">
@@ -71,14 +73,6 @@
     <Compile Include="command\GalaxyCommand.vb">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="command\IDefenseCommand.vb" />
-    <Compile Include="command\IFleetCommand.vb" />
-    <Compile Include="command\IGalaxyCommand.vb" />
-    <Compile Include="command\InfoCommand.vb">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="command\IOverviewCommand.vb" />
-    <Compile Include="command\IBuildingCommand.vb" />
     <Compile Include="command\OverviewCommand.vb">
       <SubType>Code</SubType>
     </Compile>
@@ -88,14 +82,9 @@
     <Compile Include="command\ResearchLabCommand.vb">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="command\ShipyardCommand.vb">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="command\TechnologyCommand.vb">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="Dependency.vb" />
-    <Compile Include="Empire.vb" />
+    <Compile Include="Empire.vb">
+    </Compile>
     <Compile Include="Formula.vb" />
     <Compile Include="Ogame.vb" />
     <Compile Include="Level.vb" />
@@ -114,17 +103,18 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
+    <Compile Include="page\ResourcesPage.vb" />
     <Compile Include="page\FleetPage.vb" />
     <Compile Include="page\DefensePage.vb" />
     <Compile Include="page\GalaxyPage.vb" />
     <Compile Include="page\OverviewPage.vb" />
     <Compile Include="page\PageBase.vb" />
     <Compile Include="page\TechLevelPage.vb" />
-    <Compile Include="page\TechnologyPage.vb" />
     <Compile Include="Planet.vb" />
     <Compile Include="Server.vb" />
     <Compile Include="Server1.vb" />
     <Compile Include="ShipyardQueue.vb" />
+    <Compile Include="Test.vb" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="My Project\Resources.resx">

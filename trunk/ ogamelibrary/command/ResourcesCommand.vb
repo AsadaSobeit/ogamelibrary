@@ -2,15 +2,15 @@ Imports Microsoft.VisualBasic
 
 Namespace Command
 
-    Public Class DefenseCommand
+    Public Class ResourcesCommand
         Inherits CommandBase
 
-        Private Const URI_FORMAT As String = "http://{0}/game/buildings.php?session={1}&mode=Verteidigung"
+        Private Const URI_FORMAT As String = "http://{0}/game/resources.php?session={1}"
         Private Const PLANET_URI_FORMAT As String = URI_FORMAT & "&cp={2}"
 
-        Private _Page As Page.DefensePage
+        Private _Page As Page.ResourcesPage
 
-        Public Event Complete(ByVal page As Page.DefensePage)
+        Public Event Complete(ByVal page As Page.ResourcesPage)
 
         Public Sub New(ByVal serverName As String, ByVal planetId As String)
 
@@ -32,13 +32,13 @@ Namespace Command
 
         Protected Overrides Sub SetPageContent(ByVal html As String)
 
-            _Page = New Page.DefensePage(html)
+            _Page = New Page.ResourcesPage(html)
 
             RaiseEvent Complete(_Page)
 
         End Sub
 
-        Public ReadOnly Property Page() As Page.DefensePage
+        Public ReadOnly Property Page() As Page.ResourcesPage
             Get
                 Return _Page
             End Get

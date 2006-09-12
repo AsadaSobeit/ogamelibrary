@@ -44,15 +44,26 @@ Namespace Page
         '(?:<option value="/game/\w+[.]php[?]session=\w{12}&cp=(?<planetid>\d+)[^"]*" (?<selected>(?:selected)?)>.*?</option>\s*)+
         Const PLANETID_PATTERN As String = "(?:<option value=""/game/\w+[.]php[?]session=\w{12}&cp=(?<planetid>\d+)[^""]*"" (?<selected>(?:selected)?)>.*?</option>\s*)+"
 
-        Const GENERAL_INFO_PATTERN As String = PLANETID_PATTERN & NONSENSE_PATTERN & _
+        '<img src="(?<smallimage>[^"]*/planeten/small/s_(?<planettype>[^"]+?).jpg?)" width="50" height="50">
+        Const SMALL_IMAGE_PATTERN As String = "<img src=""(?<smallimage>[^""]*/planeten/small/s_(?<planettype>[^""]+?).jpg?)"" width=""50"" height=""50"">"
+
+        Const GENERAL_INFO_PATTERN As String = SMALL_IMAGE_PATTERN & NONSENSE_PATTERN & _
+                PLANETID_PATTERN & NONSENSE_PATTERN & _
                 "(?<metal>" & RESOURCE_PATTERN & ")" & NONSENSE_PATTERN & _
                 "(?<crystal>" & RESOURCE_PATTERN & ")" & NONSENSE_PATTERN & _
                 "(?<deuterium>" & RESOURCE_PATTERN & ")" & NONSENSE_PATTERN & _
                 POWER_PATTERN
 
+        '<script>setTimeout[(]window[.]parent[.]location='[^']+',1500[)];</script>.*?<br>
+        Const TIME_OUT_PATTERN As String = "<script>setTimeout[(]window[.]parent[.]location='[^']+',1500[)];</script>.*?<br>"
+
         Shared ReadOnly GENERAL_INFO_REGEX As New Regex(GENERAL_INFO_PATTERN, RegexOptions.Singleline)
+        Shared ReadOnly TIME_OUT_REGEX As New Regex(TIME_OUT_PATTERN)
 
 #End Region
+
+        Private _PlanetType As String
+        Private _SmallImageUri As String
 
         Private _PlanetIdList As List(Of String)
         Private _CurrentPlanetId As String
@@ -73,16 +84,12 @@ Namespace Page
 
             Dim success As Boolean = True
 
-            If _Content.EndsWith("<br>") Then
-                'db problem
-                'Throw New ApplicationException("db problem")
-                success = False
-            End If
-
             Dim m As Match = GENERAL_INFO_REGEX.Match(_Content)
             If m.Success Then
-                _PlanetIdList = New List(Of String)()
+                _SmallImageUri = m.Groups("smallimage").Value
+                _PlanetType = m.Groups("planettype").Value
 
+                _PlanetIdList = New List(Of String)()
                 With m.Groups("planetid")
                     For Each c As Capture In .Captures
                         _PlanetIdList.Add(c.Value)
@@ -102,6 +109,8 @@ Namespace Page
                 _Metal = CIntGerman(m.Groups("metal").Value)
                 _Crystal = CIntGerman(m.Groups("crystal").Value)
                 _Deuterium = CIntGerman(m.Groups("deuterium").Value)
+            ElseIf TIME_OUT_REGEX.IsMatch(_Content) Then
+                Throw New InvalidSessionException()
             Else
                 success = False
             End If
@@ -110,9 +119,15 @@ Namespace Page
 
         End Function
 
-        Public ReadOnly Property Content() As String
+        Public ReadOnly Property PlanetType() As String
             Get
-                Return _Content
+                Return _PlanetType
+            End Get
+        End Property
+
+        Public ReadOnly Property SmallImageUri() As String
+            Get
+                Return _SmallImageUri
             End Get
         End Property
 
@@ -143,6 +158,12 @@ Namespace Page
         Public ReadOnly Property Deuterium() As Integer
             Get
                 Return _Deuterium
+            End Get
+        End Property
+
+        Public ReadOnly Property Content() As String
+            Get
+                Return _Content
             End Get
         End Property
     End Class
