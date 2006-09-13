@@ -42,6 +42,35 @@ OGame
 	<param name="Level">fusion planet level</param>
 	<returns>production per hour</returns>
 	<remarks></remarks>
+</member><member name="M:OGame.Formula.BuildingsHour(System.Int32,System.Int32,System.Int32,System.Int32)">
+	<summary>
+ calculate how many hours does it cost to construct a building
+ </summary>
+	<param name="metal">metal required</param>
+	<param name="crystal">crystal required</param>
+	<param name="roboticsFactoryLevel">level of robotics factory</param>
+	<param name="naniteFactoryLevel">level of nanite factory</param>
+	<returns></returns>
+	<remarks></remarks>
+</member><member name="M:OGame.Formula.ShipyardHour(System.Int32,System.Int32,System.Int32,System.Int32)">
+	<summary>
+ calculate how many hours does it cost to build a ship or battery
+ </summary>
+	<param name="metal">metal required</param>
+	<param name="crystal">crystal required</param>
+	<param name="shipyardLevel">level of shipyard</param>
+	<param name="naniteFactoryLevel">level of nanite factory</param>
+	<returns></returns>
+	<remarks></remarks>
+</member><member name="M:OGame.Formula.ResearchLabHour(System.Int32,System.Int32,System.Int32)">
+	<summary>
+ calculate how many hours does it cost to complete a research
+ </summary>
+	<param name="metal">metal required</param>
+	<param name="crystal">crystal required</param>
+	<param name="labLevel">level of research laboratory</param>
+	<returns></returns>
+	<remarks></remarks>
 </member><member name="F:OGame.Planet._EmpireId">
 	<summary>
  for database

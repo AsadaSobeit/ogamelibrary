@@ -48,6 +48,8 @@ Public Class Server1
         Dim e As New Empire(_Name, username, password)
         AddHandler e.Online, AddressOf ServerOnlineEventHandler
 
+        e.Download()
+
         _EmpireDictionary.Add(username, e)
         _EmpireQueue.Enqueue(username)
 
