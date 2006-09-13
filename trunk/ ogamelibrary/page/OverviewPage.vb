@@ -17,8 +17,8 @@ Namespace Page
         '(?<=[(]).*?(?=[)])
         'Const PLAYER_NAME_PATTERN As String = "(?<=[(]).*?(?=[)])"
 
-        '(?<weekday>Sat|Sun|Mon|Tue|Web|Thu|Fri) (?<month>Sep|Oct|Nov|Dec|Jan|Feb|Mat|Apr|May|Jun|Jul|Aug) (?<day>\d{1,2}) (?<time>\d{1,2}:\d\d:\d\d)
-        Const SERVER_TIME_PATTERN As String = "(?<servertime>(?<weekday>Sat|Sun|Mon|Tue|Web|Thu|Fri) (?<month>Sep|Oct|Nov|Dec|Jan|Feb|Mat|Apr|May|Jun|Jul|Aug) (?<day>\d{1,2}) (?<time>\d{1,2}:\d\d:\d\d))"
+        '(?<weekday>Sat|Sun|Mon|Tue|Wed|Thu|Fri) (?<month>Sep|Oct|Nov|Dec|Jan|Feb|Mat|Apr|May|Jun|Jul|Aug) (?<day>\d{1,2}) (?<time>\d{1,2}:\d\d:\d\d)
+        Const SERVER_TIME_PATTERN As String = "(?<servertime>(?<weekday>Sat|Sun|Mon|Tue|Wed|Thu|Fri) (?<month>Sep|Oct|Nov|Dec|Jan|Feb|Mat|Apr|May|Jun|Jul|Aug) (?<day>\d{1,2}) (?<time>\d{1,2}:\d\d:\d\d))"
 
         'todo: event list
 

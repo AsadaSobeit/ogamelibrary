@@ -1,4 +1,6 @@
-Public Class Ogame
+Imports System.Threading
+
+Public Module Ogame
 
     Public Enum Gid
         MetalMine = 1
@@ -61,31 +63,38 @@ Public Class Ogame
 
     Private ReadOnly _ServerDictionary As Dictionary(Of String, Server1)
 
-    Public Sub New()
+    Sub New()
 
         _ServerDictionary = New Dictionary(Of String, Server1)
 
     End Sub
 
-    Public ReadOnly Property Empire(ByVal serverName As String, ByVal username As String, ByVal password As String)
-        Get
-            Dim s As Server1
-            If _ServerDictionary.ContainsKey(serverName) Then
-                s = _ServerDictionary(serverName)
-            Else
-                s = New Server1(serverName)
-                _ServerDictionary(serverName) = s
-            End If
+    Public Function GetEmpire(ByVal serverName As String, ByVal username As String, ByVal password As String)
 
-            Dim e As Empire
-            If s.ContainsEmpire(username) Then
-                e = s.Empire(username)
-            Else
-                e = s.AddEmpire(username, password)
-            End If
+        Static lock As Integer = 0
 
-            Return e
+        While Interlocked.CompareExchange(lock, 1, 0) <> 0
+            Thread.Sleep(0)
+        End While
 
-        End Get
-    End Property
-End Class
+        Dim s As Server1
+        If _ServerDictionary.ContainsKey(serverName) Then
+            s = _ServerDictionary(serverName)
+        Else
+            s = New Server1(serverName)
+            _ServerDictionary(serverName) = s
+        End If
+
+        Dim e As Empire
+        If s.ContainsEmpire(username) Then
+            e = s.Empire(username)
+        Else
+            e = s.AddEmpire(username, password)
+        End If
+
+        lock = 0
+
+        Return e
+
+    End Function
+End Module

@@ -22,13 +22,13 @@ Public Class Planet
 
                     If planetId = .CurrentPlanetId Then
                         planet.LoadOverview(currentOverviewPage)
-                    Else
+                        'Else
                         'If Not planet.LoadOverviewPage(sessionId) Then
                         '    planetList = Nothing
                         '    Exit For
                         'End If
                         'asynchronous loading
-                        planet.BeginLoadOverviewPage()
+                        'planet.BeginLoadOverviewPage()
                     End If
 
                     'If Not planet.LoadOtherPages(sessionId) Then
@@ -36,7 +36,7 @@ Public Class Planet
                     '    Exit For
                     'End If
                     'asynchronous loading
-                    planet.BeginLoadOtherPages()
+                    'planet.BeginLoadOtherPages()
 
                     planetList.Add(planet)
                     ordinal += 1
