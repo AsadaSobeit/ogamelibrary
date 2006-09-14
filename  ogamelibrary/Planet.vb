@@ -423,6 +423,48 @@ Public Class Planet
         End Get
     End Property
 
+    Public ReadOnly Property MetalCapacity() As Integer
+        Get
+            Return _MetalCapacity
+        End Get
+    End Property
+
+    Public ReadOnly Property CrystalCapacity() As Integer
+        Get
+            Return _CrystalCapacity
+        End Get
+    End Property
+
+    Public ReadOnly Property DeuteriumCapacity() As Integer
+        Get
+            Return _DeuteriumCapacity
+        End Get
+    End Property
+
+    Public ReadOnly Property MetalStoragePercentage() As Integer
+        Get
+            Return _Metal / MetalCapacity * 100
+        End Get
+    End Property
+
+    Public ReadOnly Property CrystalStoragePercentage() As Integer
+        Get
+            Return _Crystal / _CrystalCapacity * 100
+        End Get
+    End Property
+
+    Public ReadOnly Property DeuteriumStoragePercentage() As Integer
+        Get
+            Return _Deuterium / _DeuteriumCapacity * 100
+        End Get
+    End Property
+
+    Public ReadOnly Property MetalOverflowETA() As TimeSpan
+        Get
+
+        End Get
+    End Property
+
     Public ReadOnly Property LargeImageUri() As String
         Get
             Return _LargeImageUri
@@ -570,12 +612,44 @@ Public Class Planet
             _DeuteriumProduction -= 10 * level * 1.1 ^ (-0.002 * _HighestTemperature + 1.28) * percentage / 100
         End If
 
-        'todo: count solar satelites
-        '(max-temperature/4)+20 (max. 50 energy per sat)
+        'solar satelites
+        If _StationaryFleetMap IsNot Nothing AndAlso _StationaryFleetMap.ContainsKey(Gid.SolarSatellite) Then
+            level = _StationaryFleetMap(Gid.SolarSatellite)
+            percentage = 100
+            _PowerGeneration += Math.Min((_HighestTemperature / 4) + 20, 50) * level
+        End If
 
         'end: calculate power generation and deuterium consumption
 
     End Sub
+
+    Private Function CalculateCapacity(ByVal level As Integer) As Integer
+
+        Dim cap As Integer
+
+        Select Case level
+            Case 0 : cap = 100000
+            Case 1 : cap = 150000
+            Case 2 : cap = 200000
+            Case 3 : cap = 300000
+            Case 4 : cap = 400000
+            Case 5 : cap = 600000
+            Case 6 : cap = 900000
+            Case 7 : cap = 1400000
+            Case 8 : cap = 2200000
+            Case 9 : cap = 3500000
+            Case 10 : cap = 5550000
+            Case 11 : cap = 8850000
+            Case 12 : cap = 14150000
+            Case 13 : cap = 22600000
+            Case 14 : cap = 36100000
+            Case Else
+                Throw New NotImplementedException("CalculateCapacity not defined for level: " & level)
+        End Select
+
+        Return cap
+
+    End Function
 
 #Region "debug functions"
 
@@ -700,7 +774,34 @@ Public Class Planet
         If page.Parse() Then
             _BuildingLevelMap = page.LevelMap
 
+            'begin: calculate capacities
+            Dim level As Integer
 
+            'metal
+            If _BuildingLevelMap.ContainsKey(Gid.MetalStorage) Then
+                level = _BuildingLevelMap(Gid.MetalStorage)
+            Else
+                level = 0
+            End If
+            _MetalCapacity = CalculateCapacity(level)
+
+            'crystal
+            If _BuildingLevelMap.ContainsKey(Gid.CrystalStorage) Then
+                level = _BuildingLevelMap(Gid.CrystalStorage)
+            Else
+                level = 0
+            End If
+            _CrystalCapacity = CalculateCapacity(level)
+
+            'deuterium
+            If _BuildingLevelMap.ContainsKey(Gid.DeuteriumTank) Then
+                level = _BuildingLevelMap(Gid.DeuteriumTank)
+            Else
+                level = 0
+            End If
+            _DeuteriumCapacity = CalculateCapacity(level)
+
+            'end: calculate capacities
 
             If _ProductionMap IsNot Nothing Then
                 CalculateProduction()
