@@ -61,11 +61,11 @@ Public Module Ogame
         JumpGate = 43
     End Enum
 
-    Private ReadOnly _ServerDictionary As Dictionary(Of String, Server1)
+    Private ReadOnly _ServerDictionary As Dictionary(Of String, Server)
 
     Sub New()
 
-        _ServerDictionary = New Dictionary(Of String, Server1)
+        _ServerDictionary = New Dictionary(Of String, Server)
 
     End Sub
 
@@ -77,11 +77,11 @@ Public Module Ogame
             Thread.Sleep(0)
         End While
 
-        Dim s As Server1
+        Dim s As Server
         If _ServerDictionary.ContainsKey(serverName) Then
             s = _ServerDictionary(serverName)
         Else
-            s = New Server1(serverName)
+            s = New Server(serverName)
             _ServerDictionary(serverName) = s
         End If
 

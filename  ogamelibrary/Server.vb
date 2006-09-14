@@ -1,150 +1,144 @@
 Public Class Server
 
-#Region "shared"
+    Private Const MINIMUM_INTERVAL As Integer = 1000
+    Private Const LONGEST_THINKING As Integer = 5000
 
-    Private Shared ReadOnly MAX_TIME_SLICE As New TimeSpan(0, 0, 30)
-    Private Shared ReadOnly SERVER_POOL As New Dictionary(Of Integer, Server)
+    Private Shared ReadOnly TIME_SLICE As New TimeSpan(0, 0, 30)
 
-    Public Shared Sub IssueCommand(ByVal handler As Command.Executed, ByVal file As String, ByVal parameters As Dictionary(Of String, String), ByVal serverId As String, ByVal username As String, ByVal password As String)
+    Private ReadOnly _Name As String
 
-        Dim server As Server = Nothing
-        If SERVER_POOL.TryGetValue(serverId, server) = False Then
-            server = New Server(serverId)
-            SERVER_POOL.Add(serverId, server)
-        End If
+    Private ReadOnly _EmpireQueue As Queue(Of String)
+    Private ReadOnly _EmpireDictionary As Dictionary(Of String, Empire)
 
-        Dim sb As New System.Text.StringBuilder("http://ogame" & serverId & ".de/" & file & ".php?")
-        For Each key As String In parameters.Keys
-            Dim value As String = parameters(key)
-            sb.Append("&" & key & "=" & value)
-        Next
-        Dim cmd As String = sb.ToString()
+    Private _Online As Boolean
 
-        server.EmpireIssueCommand(handler, cmd, username, password)
+    Private WithEvents _CommandTimer As Timers.Timer
+    Private _CurrentEmpire As Empire
+    Private _CurrentUsername As String
+    Private _StartTime As Date
+
+    Friend Sub New(ByVal name As String)
+
+        _Name = name
+        _EmpireQueue = New Queue(Of String)()
+        _EmpireDictionary = New Dictionary(Of String, Empire)()
+
+        _Online = False
+
+        _CommandTimer = New Timers.Timer(MINIMUM_INTERVAL)
 
     End Sub
+
+    Public ReadOnly Property Online() As Boolean
+        Get
+            Return _Online
+        End Get
+    End Property
+
+#Region "empire collection"
+
+    Public Function ContainsEmpire(ByVal username As String) As Boolean
+
+        Return _EmpireDictionary.ContainsKey(username)
+
+    End Function
+
+    Public Function AddEmpire(ByVal username As String, ByVal password As String) As Empire
+
+        Dim e As New Empire(_Name, username, password)
+        AddHandler e.Online, AddressOf ServerOnlineEventHandler
+
+        e.Download()
+
+        _EmpireDictionary.Add(username, e)
+        _EmpireQueue.Enqueue(username)
+
+        If Not _CommandTimer.Enabled Then
+            _CommandTimer.Enabled = True
+        End If
+
+        Return e
+
+    End Function
+
+    Public ReadOnly Property Empire(ByVal username As String) As Empire
+        Get
+            Return _EmpireDictionary(username)
+        End Get
+    End Property
 #End Region
 
-#Region "instance"
+#Region "event handlers"
 
-    Private id As Integer
+    Private Sub ServerOnlineEventHandler(ByVal sender As Empire)
 
-    Private recentUsername As String
-    Private recentSession As String = Nothing
-    Private recentEmpire As Empire = Nothing
+        RemoveHandler sender.Online, AddressOf ServerOnlineEventHandler
 
-    Private WithEvents tmr As New Timers.Timer(5000.0#)
-    Private startTime As Date = Nothing
-
-    Private ReadOnly empireQueue As New Queue(Of Empire)
-    Private ReadOnly empireDictionary As New Dictionary(Of String, Empire)
-
-    Private Sub EmpireIssueCommand(ByVal handler As Command.Executed, ByVal command As String, ByVal username As String, ByVal password As String)
-
-        Dim empire As Empire = Nothing
-        If empireDictionary.TryGetValue(username, empire) = False Then
-            empire = New Empire(username, password)
-            empireDictionary.Add(username, empire)
-            empireQueue.Enqueue(empire)
-        End If
-
-        empire.IssueCommand(handler, command)
+        _Online = True
 
     End Sub
 
-    'Public Shared Function GetInstance(ByVal id As Integer) As Server
+    Private Sub _CommandTimer_Elapsed(ByVal sender As Object, ByVal e As System.Timers.ElapsedEventArgs) Handles _CommandTimer.Elapsed
 
-    '    Dim svr As Server = Nothing
-    '    If SERVER_DICTIONARY.TryGetValue(id, svr) = False Then
-    '        svr = New Server(id)
-    '        SERVER_DICTIONARY.Add(id, svr)
-    '    End If
+        '0 - free, 1 - busy (which is skipped)
+        Static syncPoint As Integer = 0
 
-    '    Return svr
+        Dim sync As Integer = Threading.Interlocked.CompareExchange(syncPoint, 1, 0)
+        If sync = 0 Then
+            If _EmpireQueue.Count > 0 Then
+                If _CurrentEmpire Is Nothing OrElse _CurrentEmpire.CommandQueue.Count = 0 OrElse Now - _StartTime > TIME_SLICE Then
+                    Do
+                        Dim username As String = _EmpireQueue.Dequeue()
+                        _EmpireQueue.Enqueue(username)
 
-    'End Function
+                        _CurrentEmpire = _EmpireDictionary(username)
+                        _StartTime = Now
 
-    Private Sub New(ByVal id As Integer)
+                        If username = _CurrentUsername Then
+                            Exit Do
+                        End If
+                        _CurrentUsername = username
 
-        Me.id = id
+                        If _CurrentEmpire.CommandQueue.Count > 0 Then
+                            Exit Do
+                        End If
+                    Loop
+                End If
 
-    End Sub
+                'todo: execute commands
+                With _CurrentEmpire
+                    If .CommandQueue.Count > 0 Then
+                        Try
+                            Dim cmd As Command.CommandBase = .CommandQueue.Peek()
+                            cmd.Execute(.SessionId)
+                            .CommandQueue.Dequeue()
+                        Catch ex As InvalidSessionException
+                            .Login()
+                        Catch ex As InvalidCommandException
+                            'try
+                            Debug.Print(ex.Message)
+                        End Try
+                    End If
+                End With
 
-    Private Sub tmr_Elapsed(ByVal sender As Object, ByVal e As System.Timers.ElapsedEventArgs) Handles tmr.Elapsed
+                _CommandTimer.Interval = RandomInterval()
+            Else
+                _CommandTimer.Enabled = False
+            End If
 
-        'todo
-        If recentEmpire Is Nothing Then
-
-        End If
-        If empireQueue.Count > 0 Then
-            Dim empire As Empire = empireQueue.Dequeue()
-
-            empireQueue.Enqueue(Empire)
+            syncPoint = 0
         Else
-            tmr.Stop()
+            _CommandTimer.Interval = MINIMUM_INTERVAL
         End If
-
-
-        'todo: execute
-
-        'Dim html As String = ""
-        'handler.Invoke(html)
-
     End Sub
 
-    Public Class Command
+    Private Function RandomInterval() As Double
 
-        ''' <summary>
-        ''' notify the command source
-        ''' </summary>
-        ''' <param name="html">response page</param>
-        ''' <remarks></remarks>
-        Public Delegate Sub Executed(ByVal html As String)
+        'Randomize()
 
-        Private handler As Executed
-        Private command As String
+        'Return MINIMUM_INTERVAL + LONGEST_THINKING * Rnd()
+        Return MINIMUM_INTERVAL + LONGEST_THINKING * New Random().NextDouble()
 
-        Public Sub New(ByVal handler As Executed, ByVal command As String)
-
-            Me.handler = handler
-            Me.command = command
-
-        End Sub
-    End Class
-
-    Public Class Empire
-
-        Private _Username As String
-        Private _Password As String
-
-        Private _CommandQueue As New Queue(Of Command)
-
-        Public Sub New(ByVal username As String, ByVal password As String)
-
-            _Username = username
-            _Password = password
-
-        End Sub
-
-        Public Sub IssueCommand(ByVal handler As Command.Executed, ByVal command As String)
-
-            'todo enqueue
-            Dim cmd As New Command(handler, command)
-            _CommandQueue.Enqueue(cmd)
-
-        End Sub
-
-        Public ReadOnly Property Username() As String
-            Get
-                Return _Username
-            End Get
-        End Property
-
-        Public ReadOnly Property Password() As String
-            Get
-                Return _Password
-            End Get
-        End Property
-    End Class
+    End Function
 #End Region
 End Class

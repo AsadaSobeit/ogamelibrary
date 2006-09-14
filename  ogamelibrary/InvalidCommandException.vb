@@ -1,5 +1,5 @@
 Public Class InvalidCommandException
-    Inherits Exception
+    Inherits OGameException
 
     Public Sub New(ByVal message As String, ByVal innerException As Exception)
 
