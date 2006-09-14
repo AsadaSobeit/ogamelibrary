@@ -71,7 +71,7 @@ Public Class Planet
 #Region "informational command variables"
 
     Private ReadOnly _OverviewCommand As Command.OverviewCommand
-    Private ReadOnly _ConstructionCenterCommand As Command.BuildingsCommand
+    Private ReadOnly _BuildingsCommand As Command.BuildingsCommand
     Private ReadOnly _ResourcesCommand As Command.ResourcesCommand
     Private ReadOnly _ResearchLabCommand As Command.ResearchLabCommand
     Private ReadOnly _FleetCommand As Command.FleetCommand
@@ -118,6 +118,12 @@ Public Class Planet
     Private _BuildingLevelMap As Dictionary(Of Integer, Integer)
 
     ''' <summary>
+    ''' 生产比率
+    ''' </summary>
+    ''' <remarks></remarks>
+    Private _ProductionMap As Dictionary(Of Integer, Integer)
+
+    ''' <summary>
     ''' 科研等级
     ''' </summary>
     ''' <remarks></remarks>
@@ -134,6 +140,16 @@ Public Class Planet
     ''' </summary>
     ''' <remarks></remarks>
     Private _StationaryFleetMap As Dictionary(Of Integer, Integer)
+
+    Private _MetalProduction As Integer
+    Private _CrystalProduction As Integer
+    Private _DeuteriumProduction As Integer
+    Private _PowerGeneration As Integer
+    Private _PowerConsumption As Integer
+
+    Private _MetalCapacity As Integer
+    Private _CrystalCapacity As Integer
+    Private _DeuteriumCapacity As Integer
 
 #End Region
 
@@ -178,14 +194,14 @@ Public Class Planet
         _OrdinalNumber = ordinal
 
         _OverviewCommand = New Command.OverviewCommand(serverName, id)
-        _ConstructionCenterCommand = New Command.BuildingsCommand(serverName, id)
+        _BuildingsCommand = New Command.BuildingsCommand(serverName, id)
         _ResourcesCommand = New Command.ResourcesCommand(serverName, id)
         _ResearchLabCommand = New Command.ResearchLabCommand(serverName, id)
         _FleetCommand = New Command.FleetCommand(serverName, id)
         _DefenseCommand = New Command.DefenseCommand(serverName, id)
 
         AddHandler _OverviewCommand.Complete, AddressOf OverviewCommand_Complete
-        AddHandler _ConstructionCenterCommand.Complete, AddressOf ConstructionCenterCommand_Complete
+        AddHandler _BuildingsCommand.Complete, AddressOf BuildingsCommand_Complete
         AddHandler _ResourcesCommand.Complete, AddressOf ResourcesCommand_Complete
         AddHandler _ResearchLabCommand.Complete, AddressOf ResearchLabCommand_Complete
         AddHandler _FleetCommand.Complete, AddressOf FleetCommand_Complete
@@ -194,7 +210,7 @@ Public Class Planet
     End Sub
 
     ''' <summary>
-    ''' 
+    ''' used in galaxy view
     ''' </summary>
     ''' <param name="galaxyIndex"></param>
     ''' <param name="systemIndex"></param>
@@ -226,6 +242,24 @@ Public Class Planet
 #End Region
 
 #Region "properites"
+
+    Public ReadOnly Property ServerName() As String
+        Get
+            Return _ServerName
+        End Get
+    End Property
+
+    Public ReadOnly Property Id() As String
+        Get
+            Return _Id
+        End Get
+    End Property
+
+    Public ReadOnly Property OrdinalNumber() As Integer
+        Get
+            Return _OrdinalNumber
+        End Get
+    End Property
 
     Public ReadOnly Property SmallImageUri() As String
         Get
@@ -335,6 +369,12 @@ Public Class Planet
         End Get
     End Property
 
+    Public ReadOnly Property ProductionMap() As Dictionary(Of Integer, Integer)
+        Get
+            Return _ProductionMap
+        End Get
+    End Property
+
     Public ReadOnly Property ResearchLevelMap() As Dictionary(Of Integer, Integer)
         Get
             Return _ResearchLevelMap
@@ -350,6 +390,36 @@ Public Class Planet
     Public ReadOnly Property StationaryFleetMap() As Dictionary(Of Integer, Integer)
         Get
             Return _StationaryFleetMap
+        End Get
+    End Property
+
+    Public ReadOnly Property MetalProduction() As Integer
+        Get
+            Return _MetalProduction
+        End Get
+    End Property
+
+    Public ReadOnly Property CrystalProduction() As Integer
+        Get
+            Return _CrystalProduction
+        End Get
+    End Property
+
+    Public ReadOnly Property DeuteriumProduction() As Integer
+        Get
+            Return _DeuteriumProduction
+        End Get
+    End Property
+
+    Public ReadOnly Property PowerGeneration() As Integer
+        Get
+            Return _PowerGeneration
+        End Get
+    End Property
+
+    Public ReadOnly Property PowerConsumption() As Integer
+        Get
+            Return _PowerConsumption
         End Get
     End Property
 
@@ -434,6 +504,77 @@ Public Class Planet
             _Rank = .Rank
             _EmpireCount = .EmpireCount
         End With
+    End Sub
+
+    ''' <summary>
+    ''' calculate production rate
+    ''' </summary>
+    ''' <remarks></remarks>
+    Private Sub CalculateProduction()
+
+        Dim level As Integer
+        Dim percentage As Integer
+
+        'begin: calculate production and power consumption
+
+        _PowerConsumption = 0
+
+        'metal mine
+        If _BuildingLevelMap.ContainsKey(Gid.MetalMine) And _ProductionMap.ContainsKey(Gid.MetalMine) Then
+            level = _BuildingLevelMap(Gid.MetalMine)
+            percentage = _ProductionMap(Gid.MetalMine)
+            _MetalProduction = 30 * level * 1.1 ^ level * percentage / 100
+            _PowerConsumption += 10 * level * 1.1 ^ level
+        Else
+            _MetalProduction = 0
+        End If
+
+        'crystal mine
+        If _BuildingLevelMap.ContainsKey(Gid.CrystalMine) And _ProductionMap.ContainsKey(Gid.CrystalMine) Then
+            level = _BuildingLevelMap(Gid.CrystalMine)
+            percentage = _ProductionMap(Gid.CrystalMine)
+            _CrystalProduction = 20 * level * 1.1 ^ level * percentage / 100
+            _PowerConsumption += 10 * level * 1.1 ^ level
+        Else
+            _CrystalProduction = 0
+        End If
+
+        'deuterium synthesizer
+        If _BuildingLevelMap.ContainsKey(Gid.DeuteriumSynthesizer) And _ProductionMap.ContainsKey(Gid.DeuteriumSynthesizer) Then
+            level = _BuildingLevelMap(Gid.DeuteriumSynthesizer)
+            percentage = _ProductionMap(Gid.DeuteriumSynthesizer)
+            _DeuteriumProduction = 10 * level * 1.1 ^ level * (-0.002 * _HighestTemperature + 1.28) * percentage / 100
+            _PowerConsumption += 20 * level * 1.1 ^ level
+        Else
+            _DeuteriumProduction = 0
+        End If
+
+        'end: calculate production and power consumption
+
+        'begin: calculate power generation and deuterium consumption
+
+        _PowerGeneration = 0
+
+        'solar planet
+        If _BuildingLevelMap.ContainsKey(Gid.SolarPlant) And _ProductionMap.ContainsKey(Gid.SolarPlant) Then
+            level = _BuildingLevelMap(Gid.SolarPlant)
+            percentage = _ProductionMap(Gid.SolarPlant)
+            _PowerGeneration += 20 * level * 1.1 ^ level * percentage / 100
+        End If
+
+        'fusion planet
+        If _BuildingLevelMap.ContainsKey(Gid.FusionReactor) And _ProductionMap.ContainsKey(Gid.FusionReactor) Then
+            level = _BuildingLevelMap(Gid.FusionReactor)
+            percentage = _ProductionMap(Gid.FusionReactor)
+            _PowerGeneration += 50 * level * 1.1 ^ level * percentage / 100
+            _DeuteriumProduction -= 10 * level * 1.1 ^ (-0.002 * _HighestTemperature + 1.28) * percentage / 100
+        End If
+
+        'todo: count solar satelites
+        '(max-temperature/4)+20 (max. 50 energy per sat)
+
+        'end: calculate power generation and deuterium consumption
+
     End Sub
 
 #Region "debug functions"
@@ -531,7 +672,7 @@ Public Class Planet
 
     Public Sub BeginLoadOtherPages()
 
-        RaiseEvent EnqueueCommand(_ConstructionCenterCommand)
+        RaiseEvent EnqueueCommand(_BuildingsCommand)
         RaiseEvent EnqueueCommand(_ResourcesCommand)
         RaiseEvent EnqueueCommand(_ResearchLabCommand)
         RaiseEvent EnqueueCommand(_FleetCommand)
@@ -554,17 +695,28 @@ Public Class Planet
         End If
     End Sub
 
-    Private Sub ConstructionCenterCommand_Complete(ByVal page As Page.TechLevelPage)
+    Private Sub BuildingsCommand_Complete(ByVal page As Page.TechLevelPage)
 
         If page.Parse() Then
             _BuildingLevelMap = page.LevelMap
+
+
+
+            If _ProductionMap IsNot Nothing Then
+                CalculateProduction()
+            End If
         End If
     End Sub
 
     Private Sub ResourcesCommand_Complete(ByVal page As Page.ResourcesPage)
 
-        'todo: production percentage
+        If page.Parse() Then
+            _ProductionMap = page.PercentageMap
 
+            If _BuildingLevelMap IsNot Nothing Then
+                CalculateProduction()
+            End If
+        End If
     End Sub
 
     Private Sub ResearchLabCommand_Complete(ByVal page As Page.TechLevelPage)

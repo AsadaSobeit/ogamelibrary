@@ -86,6 +86,11 @@ OGame
  建筑等级
  </summary>
 	<remarks></remarks>
+</member><member name="F:OGame.Planet._ProductionMap">
+	<summary>
+ 生产比率
+ </summary>
+	<remarks></remarks>
 </member><member name="F:OGame.Planet._ResearchLevelMap">
 	<summary>
  科研等级
@@ -116,7 +121,8 @@ OGame
 	<remarks></remarks>
 </member><member name="M:OGame.Planet.#ctor(System.Int32,System.Int32,System.Int32,System.String,System.String,System.Boolean,System.Int32,System.Int32,System.String,System.String,System.String)">
 	<summary>
-	</summary>
+ used in galaxy view
+ </summary>
 	<param name="galaxyIndex"></param>
 	<param name="systemIndex"></param>
 	<param name="planetIndex"></param>
@@ -134,6 +140,11 @@ OGame
  general information
  </summary>
 	<param name="page"></param>
+	<remarks></remarks>
+</member><member name="M:OGame.Planet.CalculateProduction">
+	<summary>
+ calculate production rate
+ </summary>
 	<remarks></remarks>
 </member><member name="T:OGame.Page.FleetPage">
 	<summary>
@@ -196,12 +207,6 @@ OGame
  适用于建筑和研究两个页面
  </summary>
 	<remarks></remarks>
-</member><member name="T:OGame.Server.Command.Executed">
-	<summary>
- notify the command source
- </summary>
-	<param name="html">response page</param>
-	<remarks></remarks>
 </member><member name="F:OGame.Empire._Id">
 	<summary>
  primary key in empire database table
@@ -215,6 +220,11 @@ OGame
 </member><member name="F:OGame.Empire._PlanetList">
 	<summary>
  行星列表
+ </summary>
+	<remarks></remarks>
+</member><member name="F:OGame.Empire._PlanetDictionary">
+	<summary>
+ 行星字典
  </summary>
 	<remarks></remarks>
 </member><member name="F:OGame.Empire._CommandQueue">

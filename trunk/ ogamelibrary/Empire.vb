@@ -29,6 +29,12 @@ Public Class Empire
     ''' <remarks></remarks>
     Private _PlanetList As List(Of Planet)
 
+    ''' <summary>
+    ''' ÐÐÐÇ×Öµä
+    ''' </summary>
+    ''' <remarks></remarks>
+    Private _PlanetDictionary As Dictionary(Of String, Planet)
+
     Private _PlanetCount As Integer
     Private _ServerTime As String
     Private _LocalTime As Date
@@ -71,8 +77,9 @@ Public Class Empire
 
         Login()
 
-        _PlanetList = Planet.List(_ServerName, _SessionId)
         '_PlanetList = Planet.List("ogame441.de", "ebdbafca33e2")
+        _PlanetList = Planet.List(_ServerName, _SessionId)
+        _PlanetDictionary = New Dictionary(Of String, Planet)
 
         _PlanetCount = _PlanetList.Count
 
@@ -92,6 +99,8 @@ Public Class Empire
 
                 .BeginLoadOverviewPage()
                 .BeginLoadOtherPages()
+
+                _PlanetDictionary.Add(.Id, p)
             End With
         Next
 
@@ -101,6 +110,13 @@ Public Class Empire
     Public Function ListPlanets() As ReadOnlyCollection(Of Planet)
 
         Return New ReadOnlyCollection(Of Planet)(_PlanetList)
+
+    End Function
+
+    <DataObjectMethod(DataObjectMethodType.Select, True)> _
+    Public Function GetPlanet(ByVal planetId As String) As Planet
+
+        Return _PlanetDictionary(planetId)
 
     End Function
 

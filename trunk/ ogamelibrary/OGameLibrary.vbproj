@@ -103,6 +103,7 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
+    <Compile Include="OGameException.vb" />
     <Compile Include="page\ResourcesPage.vb" />
     <Compile Include="page\FleetPage.vb" />
     <Compile Include="page\DefensePage.vb" />
@@ -112,7 +113,6 @@
     <Compile Include="page\TechLevelPage.vb" />
     <Compile Include="Planet.vb" />
     <Compile Include="Server.vb" />
-    <Compile Include="Server1.vb" />
     <Compile Include="ShipyardQueue.vb" />
     <Compile Include="Test.vb" />
   </ItemGroup>
