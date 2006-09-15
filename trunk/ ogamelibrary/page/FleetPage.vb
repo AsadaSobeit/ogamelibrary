@@ -21,7 +21,7 @@ Namespace Page
 
 #End Region
 
-        Private _UnitCountMap As Dictionary(Of Integer, Integer)
+        Private _UnitCountMap As Dictionary(Of Gid, Integer)
 
         Public Sub New(ByVal html As String)
 
@@ -33,7 +33,7 @@ Namespace Page
 
             Dim success = MyBase.Parse()
             If success Then
-                _UnitCountMap = New Dictionary(Of Integer, Integer)()
+                _UnitCountMap = New Dictionary(Of Gid, Integer)()
 
                 Dim m As Match = LIST_ITEM_REGEX.Match(Content)
                 While m.Success
@@ -49,7 +49,7 @@ Namespace Page
 
         End Function
 
-        Public ReadOnly Property UnitCountMap() As Dictionary(Of Integer, Integer)
+        Public ReadOnly Property UnitCountMap() As Dictionary(Of Gid, Integer)
             Get
                 Return _UnitCountMap
             End Get

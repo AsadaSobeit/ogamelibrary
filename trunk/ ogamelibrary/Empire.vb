@@ -19,7 +19,7 @@ Public Class Empire
     ''' 科研等级
     ''' </summary>
     ''' <remarks></remarks>
-    Private ReadOnly _ResearchLevelMap As Dictionary(Of Integer, Integer)
+    Private ReadOnly _ResearchLevelMap As Dictionary(Of Gid, Integer)
 
     Private _SessionId As String
 
@@ -59,7 +59,7 @@ Public Class Empire
         _Username = username
         _Password = password
 
-        _ResearchLevelMap = New Dictionary(Of Integer, Integer)()
+        _ResearchLevelMap = New Dictionary(Of Gid, Integer)()
 
         _CommandQueue = New Queue(Of Command.CommandBase)()
 
@@ -164,7 +164,7 @@ Public Class Empire
         End Get
     End Property
 
-    Public ReadOnly Property ResearchLevelMap() As Dictionary(Of Integer, Integer)
+    Public ReadOnly Property ResearchLevelMap() As Dictionary(Of Gid, Integer)
         Get
             Return _ResearchLevelMap
         End Get
@@ -215,7 +215,7 @@ Public Class Empire
 
 #Region "event handlers"
 
-    Private Sub ResearchLabUpdatedEventHandler(ByVal levelMap As Dictionary(Of Integer, Integer))
+    Private Sub ResearchLabUpdatedEventHandler(ByVal levelMap As Dictionary(Of Gid, Integer))
 
         With levelMap
             For Each gid As Integer In .Keys

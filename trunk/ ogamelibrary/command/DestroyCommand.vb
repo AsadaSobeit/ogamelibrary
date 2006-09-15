@@ -10,9 +10,9 @@ Namespace Command
 
         Private _GID As Integer
 
-        Public Sub New(ByVal serverName As String, ByVal planetId As Integer, ByVal gid As Integer, ByVal level As Integer)
+        Public Sub New(ByVal serverName As String, ByVal planetId As Integer, ByVal gid As Integer, ByVal level As Integer, ByVal roboticsFactoryLevel As Integer, ByVal naniteFactoryLevel As Integer)
 
-            MyBase.New(serverName, planetId, gid, level - 1)
+            MyBase.New(serverName, planetId, gid, level - 1, roboticsFactoryLevel, naniteFactoryLevel)
 
             _GID = gid
 
