@@ -58,6 +58,7 @@
     <Compile Include="command\BuildingsCommand.vb">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="command\UpgradeCommandBase.vb" />
     <Compile Include="InvalidSessionException.vb" />
     <Compile Include="InvalidCommandException.vb" />
     <Compile Include="command\ResourcesCommand.vb" />
@@ -82,12 +83,10 @@
     <Compile Include="command\ResearchLabCommand.vb">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Dependency.vb" />
     <Compile Include="Empire.vb">
     </Compile>
     <Compile Include="Formula.vb" />
     <Compile Include="Ogame.vb" />
-    <Compile Include="Level.vb" />
     <Compile Include="My Project\AssemblyInfo.vb" />
     <Compile Include="My Project\Application.Designer.vb">
       <AutoGen>True</AutoGen>
@@ -114,7 +113,6 @@
     <Compile Include="Planet.vb" />
     <Compile Include="Server.vb" />
     <Compile Include="ShipyardQueue.vb" />
-    <Compile Include="Test.vb" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="My Project\Resources.resx">
@@ -137,15 +135,6 @@
       <Generator>SettingsSingleFileGenerator</Generator>
       <CustomToolNamespace>My</CustomToolNamespace>
       <LastGenOutput>Settings.Designer.vb</LastGenOutput>
-    </None>
-    <None Include="ogameDataSet.xsc">
-      <DependentUpon>ogameDataSet.xsd</DependentUpon>
-    </None>
-    <None Include="ogameDataSet.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="ogameDataSet.xss">
-      <DependentUpon>ogameDataSet.xsd</DependentUpon>
     </None>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.VisualBasic.targets" />

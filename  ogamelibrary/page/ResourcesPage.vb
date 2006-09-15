@@ -16,7 +16,7 @@ Namespace Page
 
 #End Region
 
-        Private _PercentageMap As Dictionary(Of Integer, Integer)
+        Private _PercentageMap As Dictionary(Of Gid, Integer)
 
         Public Sub New(ByVal html As String)
 
@@ -28,7 +28,7 @@ Namespace Page
 
             Dim success = MyBase.Parse()
             If success Then
-                _PercentageMap = New Dictionary(Of Integer, Integer)()
+                _PercentageMap = New Dictionary(Of Gid, Integer)()
 
                 Dim m As Match = LIST_ITEM_REGEX.Match(Content)
                 While m.Success
@@ -58,7 +58,7 @@ Namespace Page
 
         End Function
 
-        Public ReadOnly Property PercentageMap() As Dictionary(Of Integer, Integer)
+        Public ReadOnly Property PercentageMap() As Dictionary(Of Gid, Integer)
             Get
                 Return _PercentageMap
             End Get

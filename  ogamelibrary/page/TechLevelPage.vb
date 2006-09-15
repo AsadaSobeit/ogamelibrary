@@ -20,7 +20,7 @@ Namespace Page
 
 #End Region
 
-        Private _LevelMap As Dictionary(Of Integer, Integer)
+        Private _LevelMap As Dictionary(Of Gid, Integer)
 
         Public Sub New(ByVal html As String)
 
@@ -32,7 +32,7 @@ Namespace Page
 
             Dim success = MyBase.Parse()
             If success Then
-                _LevelMap = New Dictionary(Of Integer, Integer)()
+                _LevelMap = New Dictionary(Of Gid, Integer)()
 
                 Dim m As Match = LIST_ITEM_REGEX.Match(Content)
                 While m.Success
@@ -51,7 +51,7 @@ Namespace Page
 
         End Function
 
-        Public ReadOnly Property LevelMap() As Dictionary(Of Integer, Integer)
+        Public ReadOnly Property LevelMap() As Dictionary(Of Gid, Integer)
             Get
                 Return _LevelMap
             End Get
