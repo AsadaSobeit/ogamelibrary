@@ -13,8 +13,7 @@ Public Class OGameException
 
         MyBase.New(message, innerException)
 
-        My.Application.Log.WriteEntry(message)
-        My.Application.Log.WriteException(innerException)
+        My.Application.Log.WriteException(innerException, TraceEventType.Error, message)
 
     End Sub
 End Class

@@ -11,8 +11,8 @@ Namespace Page
 
         Const CURRENT_PLANET_PATTERN As String = "&pl=(?<currentplanet>\d+)"
 
-        '(?<=&quot;).*?(?=&quot;)
-        Const PLANET_NAME_PATTERN As String = "&quot;(?<planetname>.+?)&quot;"
+        '&quot;(?<planetname>.+?)&quot;</a> [(](?<username>.*?)[)]
+        Const PLANET_NAME_PATTERN As String = "&quot;(?<planetname>.+?)&quot;</a> [(](?<username>.*?)[)]"
 
         '(?<=[(]).*?(?=[)])
         'Const PLAYER_NAME_PATTERN As String = "(?<=[(]).*?(?=[)])"
@@ -57,6 +57,7 @@ Namespace Page
 #End Region
 
         Private _PlanetName As String
+        Private _UserName As String
         Private _ServerTime As String
         'todo: event list
         Private _LargeImageUri As String
@@ -170,6 +171,12 @@ Namespace Page
         Public ReadOnly Property ServerTime() As String
             Get
                 Return _ServerTime
+            End Get
+        End Property
+
+        Public ReadOnly Property UserName() As String
+            Get
+                Return _UserName
             End Get
         End Property
 

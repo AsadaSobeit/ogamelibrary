@@ -137,7 +137,7 @@ Public Module Formula
 
     Public Function DeutConsumption(ByVal Level As Integer, ByVal MaxTemperature As Integer) As Integer
 
-        DeutConsumption = 10 * Level * 1.1 ^ (-0.002 * MaxTemperature + 1.28)
+        DeutConsumption = 10 * Level * 1.1 ^ Level * (-0.002 * MaxTemperature + 1.28)
     End Function
 #End Region
 
