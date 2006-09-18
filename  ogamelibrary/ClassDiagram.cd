@@ -1,21 +1,210 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <ClassDiagram MajorVersion="1" MinorVersion="1">
   <Font Name="SimSun" Size="9" />
-  <Class Name="OGame.Server">
-    <Position X="0.5" Y="0.75" Width="1.5" />
+  <Class Name="OGame.Server" Collapsed="true">
+    <Position X="23" Y="1.5" Width="1.5" />
     <TypeIdentifier>
-      <FileName>server\Server.vb</FileName>
-      <HashCode>AAAAAgAAAACAAAAAAAAAAEAIBACAACAAAAAAAAAAAgQ=</HashCode>
+      <FileName>Server.vb</FileName>
+      <HashCode>EEAAQAYAAAAQAAAAABAAOAQAIAAAACAAQAAEAQAIgAA=</HashCode>
     </TypeIdentifier>
   </Class>
-  <Class Name="OGame.Empire">
-    <Position X="3" Y="0.5" Width="1.5" />
+  <Class Name="OGame.Empire" Collapsed="true">
+    <Position X="23" Y="0.5" Width="1.5" />
     <TypeIdentifier>
       <FileName>Empire.vb</FileName>
-      <HashCode>AGBAAAAAAAAAAUCQAQKEAAEIAAEIGAICgAAAACAEgAA=</HashCode>
+      <HashCode>AGABAAYAASgCgOCAAQIEEAEIAAEAGAICgCEYACAGAAI=</HashCode>
     </TypeIdentifier>
     <Compartments>
       <Compartment Name="Fields" Collapsed="true" />
     </Compartments>
   </Class>
+  <Class Name="OGame.Planet" Collapsed="true">
+    <Position X="24.75" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <FileName>Planet.vb</FileName>
+      <HashCode>YuErIEaAIJwCgBKBT5J2cAcCAA/glAKskSAEGOUPDBI=</HashCode>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="OGame.Command.BuildingsCommand" Collapsed="true">
+    <Position X="2.75" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <FileName>command\BuildingsCommand.vb</FileName>
+      <HashCode>ACAAAQAAIAAQIAIgAAgAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="OGame.Command.ResourcesCommand" Collapsed="true">
+    <Position X="13.75" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <FileName>command\ResourcesCommand.vb</FileName>
+      <HashCode>ACAAAQAAIAAQIAIgAAgAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="OGame.Command.CancelConstructionCommand" Collapsed="true">
+    <Position X="3.5" Y="3.25" Width="2.25" />
+    <TypeIdentifier>
+      <FileName>command\CancelConstructionCommand.vb</FileName>
+      <HashCode>AAAAAQAAIAAAAAAgAAgAAAAAAAAAAQAAAAAAAAAAAAA=</HashCode>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="OGame.Command.CancelResearchCommand" Collapsed="true">
+    <Position X="8.75" Y="3.25" Width="2" />
+    <TypeIdentifier>
+      <FileName>command\CancelResearchCommand.vb</FileName>
+      <HashCode>AAAAAQAAIAAAAAAgAAgAAAAAAAAAAQAAAAAAAAAAAAA=</HashCode>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="OGame.Command.CommandBase" Collapsed="true">
+    <Position X="11" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <FileName>command\CommandBase.vb</FileName>
+      <HashCode>AECAIQAAIAAAJASAAAAAIAIBCAAAAAIAAAAQAEAAAAA=</HashCode>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="OGame.Command.ConstructCommand" Collapsed="true">
+    <Position X="1.25" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <FileName>command\ConstructCommand.vb</FileName>
+      <HashCode>QAAAAQAAIAEQAoFgYAgAAAAAAIQACQCBAAAEACAABQA=</HashCode>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="OGame.Command.DefenseCommand" Collapsed="true">
+    <Position X="18.25" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <FileName>command\DefenseCommand.vb</FileName>
+      <HashCode>ACAAAQAAIAAQIAIgAAgAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="OGame.Command.DestroyCommand" Collapsed="true">
+    <Position X="1.25" Y="4.5" Width="1.5" />
+    <TypeIdentifier>
+      <FileName>command\DestroyCommand.vb</FileName>
+      <HashCode>AAAAAQAAIAAAAAAgAAgAAAAAAAAAAQAAAAAAAAAAAAA=</HashCode>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="OGame.Command.FleetCommand" Collapsed="true">
+    <Position X="6.5" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <FileName>command\FleetCommand.vb</FileName>
+      <HashCode>ACAAAQAAIAAQIAIgAAgAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="OGame.Command.GalaxyCommand" Collapsed="true">
+    <Position X="16" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <FileName>command\GalaxyCommand.vb</FileName>
+      <HashCode>ACAAAUAAIAAQIAggAAgAAAAAAAAADAAAEAAAAAAAAAE=</HashCode>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="OGame.Command.OverviewCommand" Collapsed="true">
+    <Position X="20.5" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <FileName>command\OverviewCommand.vb</FileName>
+      <HashCode>ACAAAQAAIAAQIAIgAAgAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="OGame.Command.ResearchCommand" Collapsed="true">
+    <Position X="11.5" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <FileName>command\ResearchCommand.vb</FileName>
+      <HashCode>AAAAAQAAIAAAAoBgQAgAAAAAAIQAAQCBAAQEAAAAAAA=</HashCode>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="OGame.Command.ResearchLabCommand" Collapsed="true">
+    <Position X="10" Y="1.75" Width="1.75" />
+    <TypeIdentifier>
+      <FileName>command\ResearchLabCommand.vb</FileName>
+      <HashCode>ACAAAQAAIAAQIAIgAAgAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="OGame.Page.DefensePage" Collapsed="true">
+    <Position X="5" Y="5.75" Width="1.5" />
+    <TypeIdentifier>
+      <FileName>page\DefensePage.vb</FileName>
+      <HashCode>IAAgAAAAABAAAAAQAAAAAAAEAAAAIACAAAAAEAAAAAA=</HashCode>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="OGame.Page.TechLevelPage" Collapsed="true">
+    <Position X="11.75" Y="5.75" Width="1.5" />
+    <TypeIdentifier>
+      <FileName>page\TechLevelPage.vb</FileName>
+      <HashCode>AAAgAIAAAAAAAAAQAAAAAAAEAAAAAAAAAAAAQAAAAAA=</HashCode>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="OGame.Page.FleetPage" Collapsed="true">
+    <Position X="16.25" Y="5.75" Width="1.5" />
+    <TypeIdentifier>
+      <FileName>page\FleetPage.vb</FileName>
+      <HashCode>AAAgAAAAAAAAAAAQAAAAAAAEAAAAAACAAAAAEAAAAAA=</HashCode>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="OGame.Page.GalaxyPage" Collapsed="true">
+    <Position X="7.25" Y="5.75" Width="1.5" />
+    <TypeIdentifier>
+      <FileName>page\GalaxyPage.vb</FileName>
+      <HashCode>AAAiAEIAAAAAAIQQAAAAAAgIACIABAAIAAAAAAAAAAA=</HashCode>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="OGame.Page.OverviewPage" Collapsed="true">
+    <Position X="14" Y="5.75" Width="1.5" />
+    <TypeIdentifier>
+      <FileName>page\OverviewPage.vb</FileName>
+      <HashCode>IAglAEoBAAUCgIABCAIGQAEAASJAlAAAgSAmAAADAAA=</HashCode>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="OGame.Page.PageBase" Collapsed="true">
+    <Position X="10.5" Y="4.5" Width="1.5" />
+    <TypeIdentifier>
+      <FileName>page\PageBase.vb</FileName>
+      <HashCode>AAEgAEAIEgcAAIIAAhAgEAQAAAwgECiAAAAEAAYAAAA=</HashCode>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="OGame.Page.ResourcesPage" Collapsed="true">
+    <Position X="9.5" Y="5.75" Width="1.5" />
+    <TypeIdentifier>
+      <FileName>page\ResourcesPage.vb</FileName>
+      <HashCode>AAAgABAAAAAAAAAQAAAAAAAkAAAAAAAAAAAAAAAAAAA=</HashCode>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="OGame.InvalidCommandException" Collapsed="true">
+    <Position X="0.5" Y="9" Width="1.5" />
+    <TypeIdentifier>
+      <FileName>InvalidCommandException.vb</FileName>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="OGame.InvalidSessionException" Collapsed="true">
+    <Position X="2.75" Y="9" Width="1.5" />
+    <TypeIdentifier>
+      <FileName>InvalidSessionException.vb</FileName>
+      <HashCode>AAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="OGame.OGameException" Collapsed="true">
+    <Position X="1.75" Y="7.5" Width="1.5" />
+    <TypeIdentifier>
+      <FileName>OGameException.vb</FileName>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="OGame.PlanetView" Collapsed="true">
+    <Position X="26.5" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <FileName>PlanetView.vb</FileName>
+      <HashCode>QFFPBIakkJlgwQCiGbLiGA5gAGshwAAHpSNeHNlDgAM=</HashCode>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="OGame.ShipyardQueue" Collapsed="true">
+    <Position X="24.75" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <FileName>ShipyardQueue.vb</FileName>
+      <HashCode>AAAAAAAAAAAAAAEAAAAAAAAAYAAAAAAAAAAAAAAAAAA=</HashCode>
+    </TypeIdentifier>
+  </Class>
+  <Module Name="OGame.Ogame" Collapsed="true">
+    <Position X="23" Y="2.75" Width="1.5" />
+    <TypeIdentifier>
+      <FileName>Ogame.vb</FileName>
+      <HashCode>AAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAA=</HashCode>
+    </TypeIdentifier>
+  </Module>
 </ClassDiagram>

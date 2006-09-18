@@ -14,7 +14,7 @@ Namespace Command
         Private ReadOnly _RoboticsFactoryLevel As Integer
         Private ReadOnly _NaniteFactoryLevel As Integer
 
-        Private ReadOnly _DependencyDictionary As Dictionary(Of Ogame.Gid, Integer)
+        Private ReadOnly _Dependencies As Dictionary(Of Ogame.Gid, Integer)
 
         Private ReadOnly _MetalCost As Integer
         Private ReadOnly _CrystalCost As Integer
@@ -22,7 +22,9 @@ Namespace Command
 
         Private ReadOnly _Time As TimeSpan
 
-        Public Sub New(ByVal serverName As String, ByVal planetId As Integer, ByVal gid As Integer, ByVal currentLevel As Integer, ByVal roboticsFactoryLevel As Integer, ByVal naniteFactoryLevel As Integer)
+        Private ReadOnly _Validator As Planet.ValidateCommand
+
+        Public Sub New(ByVal serverName As String, ByVal planetId As Integer, ByVal gid As Integer, ByVal currentLevel As Integer, ByVal roboticsFactoryLevel As Integer, ByVal naniteFactoryLevel As Integer, ByVal validator As Planet.ValidateCommand)
 
             MyBase.New(serverName, planetId)
 
@@ -31,7 +33,7 @@ Namespace Command
             _RoboticsFactoryLevel = roboticsFactoryLevel
             _NaniteFactoryLevel = naniteFactoryLevel
 
-            _DependencyDictionary = New Dictionary(Of Ogame.Gid, Integer)
+            _Dependencies = New Dictionary(Of Ogame.Gid, Integer)
 
             Select Case gid
                 Case Ogame.Gid.MetalMine
@@ -54,20 +56,20 @@ Namespace Command
                     _MetalCost = 900 * 1.8 ^ currentLevel
                     _CrystalCost = 360 * 1.8 ^ currentLevel
                     _DeuteriumCost = 180 * 1.8 ^ currentLevel
-                    _DependencyDictionary.Add(Ogame.Gid.DeuteriumSynthesizer, 5)
+                    _Dependencies.Add(Ogame.Gid.DeuteriumSynthesizer, 5)
                 Case Ogame.Gid.RoboticsFactory
                     _MetalCost = 400 * 2 ^ currentLevel
                     _CrystalCost = 120 * 2 ^ currentLevel
                     _DeuteriumCost = 200 * 2 ^ currentLevel
                 Case Ogame.Gid.NaniteFactory
                     Throw New NotImplementedException("nanite factory cost formula")
-                    _DependencyDictionary.Add(Ogame.Gid.RoboticsFactory, 10)
-                    _DependencyDictionary.Add(Ogame.Gid.ComputerTechnology, 5)
+                    _Dependencies.Add(Ogame.Gid.RoboticsFactory, 10)
+                    _Dependencies.Add(Ogame.Gid.ComputerTechnology, 5)
                 Case Ogame.Gid.Shipyard
                     _MetalCost = 400 * 2 ^ currentLevel
                     _CrystalCost = 200 * 2 ^ currentLevel
                     _DeuteriumCost = 100 * 2 ^ currentLevel
-                    _DependencyDictionary.Add(Ogame.Gid.RoboticsFactory, 2)
+                    _Dependencies.Add(Ogame.Gid.RoboticsFactory, 2)
                 Case Ogame.Gid.MetalStorage
                     _MetalCost = 2000 * 2 ^ currentLevel
                     _CrystalCost = 0
@@ -86,8 +88,8 @@ Namespace Command
                     _DeuteriumCost = 200 * 2 ^ currentLevel
                 Case Ogame.Gid.Terraformer
                     Throw New NotImplementedException("terror former cost formula")
-                    _DependencyDictionary.Add(Ogame.Gid.NaniteFactory, 1)
-                    _DependencyDictionary.Add(Ogame.Gid.EnergyTechnology, 12)
+                    _Dependencies.Add(Ogame.Gid.NaniteFactory, 1)
+                    _Dependencies.Add(Ogame.Gid.EnergyTechnology, 12)
                 Case Ogame.Gid.AllianceDepot
                     Throw New NotImplementedException("alliance depot cost formula")
                 Case Ogame.Gid.MissileSilo
@@ -102,6 +104,8 @@ Namespace Command
             Dim minute As Double = (hour - Floor(hour)) * 60
             Dim second As Double = (minute - Floor(minute)) * 60
             _Time = New TimeSpan(Floor(hour), Floor(minute), Floor(second))
+
+            _Validator = validator
 
         End Sub
 
@@ -143,7 +147,7 @@ Namespace Command
 
         Public ReadOnly Property DependencyDictionary() As Dictionary(Of Ogame.Gid, Integer)
             Get
-                Return _DependencyDictionary
+                Return _Dependencies
             End Get
         End Property
 
@@ -168,6 +172,12 @@ Namespace Command
         Public ReadOnly Property Time() As TimeSpan
             Get
                 Return _Time
+            End Get
+        End Property
+
+        Public ReadOnly Property Ready() As Boolean
+            Get
+                Return _Validator.Invoke(_MetalCost, _CrystalCost, _DeuteriumCost, _Dependencies)
             End Get
         End Property
     End Class

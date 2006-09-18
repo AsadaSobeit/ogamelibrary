@@ -58,7 +58,6 @@
     <Compile Include="command\BuildingsCommand.vb">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="command\UpgradeCommandBase.vb" />
     <Compile Include="InvalidSessionException.vb" />
     <Compile Include="InvalidCommandException.vb" />
     <Compile Include="command\ResourcesCommand.vb" />
@@ -85,7 +84,6 @@
     </Compile>
     <Compile Include="Empire.vb">
     </Compile>
-    <Compile Include="Formula.vb" />
     <Compile Include="Ogame.vb" />
     <Compile Include="My Project\AssemblyInfo.vb" />
     <Compile Include="My Project\Application.Designer.vb">
@@ -111,6 +109,7 @@
     <Compile Include="page\PageBase.vb" />
     <Compile Include="page\TechLevelPage.vb" />
     <Compile Include="Planet.vb" />
+    <Compile Include="PlanetView.vb" />
     <Compile Include="Server.vb" />
     <Compile Include="ShipyardQueue.vb" />
   </ItemGroup>

@@ -71,28 +71,30 @@ Public Module Ogame
 
     Public Function GetEmpire(ByVal serverName As String, ByVal username As String, ByVal password As String)
 
-        Static lock As Integer = 0
-
-        While Interlocked.CompareExchange(lock, 1, 0) <> 0
-            Thread.Sleep(0)
-        End While
-
-        Dim s As Server
-        If _ServerDictionary.ContainsKey(serverName) Then
-            s = _ServerDictionary(serverName)
-        Else
-            s = New Server(serverName)
-            _ServerDictionary(serverName) = s
-        End If
-
         Dim e As Empire
-        If s.ContainsEmpire(username) Then
-            e = s.Empire(username)
-        Else
-            e = s.AddEmpire(username, password)
-        End If
 
-        lock = 0
+        Static lock As Integer = 0
+        Try
+            While Interlocked.CompareExchange(lock, 1, 0) <> 0
+                Thread.Sleep(0)
+            End While
+
+            Dim s As Server
+            If _ServerDictionary.ContainsKey(serverName) Then
+                s = _ServerDictionary(serverName)
+            Else
+                s = New Server(serverName)
+                _ServerDictionary(serverName) = s
+            End If
+
+            If s.ContainsEmpire(username) Then
+                e = s.Empire(username)
+            Else
+                e = s.AddEmpire(username, password)
+            End If
+        Finally
+            lock = 0
+        End Try
 
         Return e
 

@@ -38,8 +38,8 @@ Namespace Page
         '(?<=<td align="center" width="85">)(?:<font color=#ff0000>)?(?<delta>(?:-|\d|\.)+)(?:</font>)?/(?<supply>(?:\d|\.)+)(?=</td>)
         Const POWER_PATTERN As String = "(?<=<td align=""center"" width=""85"">)(?:<font color=#ff0000>)?(?<delta>(?:-|\d|\.)+)(?:</font>)?/(?<generation>(?:\d|\.)+)(?=</td>)"
 
-        '(?<=<td align="center" width="85">)(?:\d|\.)+(?=</td>)
-        Const RESOURCE_PATTERN As String = "(?<=<td align=""center"" width=""85"">)(?:\d|\.)+(?=</td>)"
+        '(?:(?<=<td align="center" width="85">(?:<font color='#ff0000'>)?))(?:\d|\.)+(?=(?:</font>)?</td>)
+        Const RESOURCE_PATTERN As String = "(?:(?<=<td align=""center"" width=""85"">(?:<font color='#ff0000'>)?))(?:\d|\.)+(?=(?:</font>)?</td>)"
 
         '(?:<option value="/game/\w+[.]php[?]session=\w{12}&cp=(?<planetid>\d+)[^"]*" (?<selected>(?:selected)?)>.*?</option>\s*)+
         Const PLANETID_PATTERN As String = "(?:<option value=""/game/\w+[.]php[?]session=\w{12}&cp=(?<planetid>\d+)[^""]*"" (?<selected>(?:selected)?)>.*?</option>\s*)+"

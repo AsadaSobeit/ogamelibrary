@@ -158,7 +158,7 @@ Namespace Command
 
         End Sub
 
-        Protected Function GetUri(ByVal session As String) As String
+        Public Function GetUri(ByVal session As String) As String
 
             If _PlanetId Is Nothing Then
                 GetUri = String.Format(UriFormat, _ServerName, session)

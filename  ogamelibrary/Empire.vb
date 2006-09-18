@@ -29,11 +29,14 @@ Public Class Empire
     ''' <remarks></remarks>
     Private _PlanetList As List(Of Planet)
 
-    ''' <summary>
-    ''' ÐÐÐÇ×Öµä
-    ''' </summary>
-    ''' <remarks></remarks>
+    '''' <summary>
+    '''' ÐÐÐÇ×Öµä
+    '''' </summary>
+    '''' <remarks></remarks>
     Private _PlanetDictionary As Dictionary(Of String, Planet)
+
+    Private _PlanetViewList As List(Of PlanetView)
+    Private _PlanetViewDictionary As Dictionary(Of String, PlanetView)
 
     Private _PlanetCount As Integer
     Private _ServerTime As String
@@ -80,6 +83,8 @@ Public Class Empire
         '_PlanetList = Planet.List("ogame441.de", "ebdbafca33e2")
         _PlanetList = Planet.List(_ServerName, _SessionId)
         _PlanetDictionary = New Dictionary(Of String, Planet)
+        _PlanetViewList = New List(Of PlanetView)
+        _PlanetViewDictionary = New Dictionary(Of String, PlanetView)
 
         _PlanetCount = _PlanetList.Count
 
@@ -100,23 +105,39 @@ Public Class Empire
                 .BeginLoadOverviewPage()
                 .BeginLoadOtherPages()
 
-                _PlanetDictionary.Add(.Id, p)
+                _PlanetDictionary.Add(p.Id, p)
             End With
+
+            Dim v As New PlanetView(p)
+            _PlanetViewList.Add(v)
+            _PlanetViewDictionary.Add(p.Id, v)
         Next
 
     End Sub
 
     <DataObjectMethod(DataObjectMethodType.Select, True)> _
-    Public Function ListPlanets() As ReadOnlyCollection(Of Planet)
+    Public Function ListPlanetViews() As ReadOnlyCollection(Of PlanetView)
 
-        Return New ReadOnlyCollection(Of Planet)(_PlanetList)
+        Return New ReadOnlyCollection(Of PlanetView)(_PlanetViewList)
 
     End Function
 
     <DataObjectMethod(DataObjectMethodType.Select, True)> _
+    Public Function GetPlanetView(ByVal planetId As String) As PlanetView
+
+        Return _PlanetViewDictionary(planetId)
+
+    End Function
+
     Public Function GetPlanet(ByVal planetId As String) As Planet
 
         Return _PlanetDictionary(planetId)
+
+    End Function
+
+    Public Function GetUrl() As String
+
+        Return String.Format("http://{0}/game/index.php?session={1}", _ServerName, _SessionId)
 
     End Function
 

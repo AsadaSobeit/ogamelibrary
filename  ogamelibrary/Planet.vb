@@ -1,3 +1,4 @@
+'Imports System.Math
 Imports System.Web
 Imports System.Collections.Generic
 
@@ -51,6 +52,8 @@ Public Class Planet
     End Function
 #End Region
 
+    Public Delegate Function ValidateCommand(ByVal metalCost As Integer, ByVal crystalCost As Integer, ByVal deuteriumCost As Integer, ByVal dependencies As Dictionary(Of Gid, Integer))
+
     ''' <summary>
     ''' for database
     ''' </summary>
@@ -76,6 +79,17 @@ Public Class Planet
     Private ReadOnly _ResearchLabCommand As Command.ResearchLabCommand
     Private ReadOnly _FleetCommand As Command.FleetCommand
     Private ReadOnly _DefenseCommand As Command.DefenseCommand
+
+#End Region
+
+#Region "upgrade command variables"
+
+    'Private _ConstructCommand As Command.ConstructCommand
+    'Private _DestroyCommand As Command.DestroyCommand
+    'Private _ResearchCommand As Command.ResearchCommand
+
+    'Private _CancelConstructionCommand As Command.CancelConstructionCommand
+    'Private _CancelResearchCommand As Command.CancelResearchCommand
 
 #End Region
 
@@ -115,41 +129,39 @@ Public Class Planet
     ''' 建筑等级
     ''' </summary>
     ''' <remarks></remarks>
-    Private _BuildingLevelMap As Dictionary(Of Integer, Integer)
+    Private _BuildingLevelMap As Dictionary(Of Gid, Integer)
 
     ''' <summary>
     ''' 生产比率
     ''' </summary>
     ''' <remarks></remarks>
-    Private _ProductionMap As Dictionary(Of Integer, Integer)
+    Private _ProductionMap As Dictionary(Of Gid, Integer)
 
     ''' <summary>
     ''' 科研等级
     ''' </summary>
     ''' <remarks></remarks>
-    Private _ResearchLevelMap As Dictionary(Of Integer, Integer)
+    Private _ResearchLevelMap As Dictionary(Of Gid, Integer)
 
     ''' <summary>
     ''' 行星防御规模
     ''' </summary>
     ''' <remarks></remarks>
-    Private _PlanetaryDefenseMap As Dictionary(Of Integer, Integer)
+    Private _PlanetaryDefenseMap As Dictionary(Of Gid, Integer)
 
     ''' <summary>
     ''' 驻留舰队规模
     ''' </summary>
     ''' <remarks></remarks>
-    Private _StationaryFleetMap As Dictionary(Of Integer, Integer)
+    Private _StationaryFleetMap As Dictionary(Of Gid, Integer)
 
-    Private _MetalProduction As Integer
-    Private _CrystalProduction As Integer
-    Private _DeuteriumProduction As Integer
-    Private _PowerGeneration As Integer
-    Private _PowerConsumption As Integer
+    Private _ConstructionTimeLeft As TimeSpan
 
-    Private _MetalCapacity As Integer
-    Private _CrystalCapacity As Integer
-    Private _DeuteriumCapacity As Integer
+    Private _ResearchTimeLeft As TimeSpan
+
+    Private _ConstructionSecondsLeft As Integer
+
+    Private _ResearchSecondsLeft As Integer
 
 #End Region
 
@@ -172,9 +184,11 @@ Public Class Planet
     ''' </summary>
     ''' <param name="levelMap"></param>
     ''' <remarks></remarks>
-    Public Event ResearchLabUpdated(ByVal levelMap As Dictionary(Of Integer, Integer))
+    Public Event ResearchLabUpdated(ByVal levelMap As Dictionary(Of Gid, Integer))
 
     Public Event EnqueueCommand(ByVal cmd As Command.CommandBase)
+
+    Public Event Changed()
 
 #End Region
 
@@ -363,105 +377,57 @@ Public Class Planet
         End Get
     End Property
 
-    Public ReadOnly Property BuildingLevelMap() As Dictionary(Of Integer, Integer)
+    Public ReadOnly Property BuildingLevelMap() As Dictionary(Of Gid, Integer)
         Get
             Return _BuildingLevelMap
         End Get
     End Property
 
-    Public ReadOnly Property ProductionMap() As Dictionary(Of Integer, Integer)
+    Public ReadOnly Property ProductionMap() As Dictionary(Of Gid, Integer)
         Get
             Return _ProductionMap
         End Get
     End Property
 
-    Public ReadOnly Property ResearchLevelMap() As Dictionary(Of Integer, Integer)
+    Public ReadOnly Property ResearchLevelMap() As Dictionary(Of Gid, Integer)
         Get
             Return _ResearchLevelMap
         End Get
     End Property
 
-    Public ReadOnly Property PlanetaryDefenseMap() As Dictionary(Of Integer, Integer)
+    Public ReadOnly Property PlanetaryDefenseMap() As Dictionary(Of Gid, Integer)
         Get
             Return _PlanetaryDefenseMap
         End Get
     End Property
 
-    Public ReadOnly Property StationaryFleetMap() As Dictionary(Of Integer, Integer)
+    Public ReadOnly Property StationaryFleetMap() As Dictionary(Of Gid, Integer)
         Get
             Return _StationaryFleetMap
         End Get
     End Property
 
-    Public ReadOnly Property MetalProduction() As Integer
+    Public ReadOnly Property ConstructionTimeLeft() As TimeSpan
         Get
-            Return _MetalProduction
+            Return _ConstructionTimeLeft
         End Get
     End Property
 
-    Public ReadOnly Property CrystalProduction() As Integer
+    Public ReadOnly Property ResearchTimeLeft() As TimeSpan
         Get
-            Return _CrystalProduction
+            Return _ResearchTimeLeft
         End Get
     End Property
 
-    Public ReadOnly Property DeuteriumProduction() As Integer
+    Public ReadOnly Property ConstructionSecondsLeft() As Integer
         Get
-            Return _DeuteriumProduction
+            Return _ConstructionSecondsLeft
         End Get
     End Property
 
-    Public ReadOnly Property PowerGeneration() As Integer
+    Public ReadOnly Property ResearchSecondsLeft() As Integer
         Get
-            Return _PowerGeneration
-        End Get
-    End Property
-
-    Public ReadOnly Property PowerConsumption() As Integer
-        Get
-            Return _PowerConsumption
-        End Get
-    End Property
-
-    Public ReadOnly Property MetalCapacity() As Integer
-        Get
-            Return _MetalCapacity
-        End Get
-    End Property
-
-    Public ReadOnly Property CrystalCapacity() As Integer
-        Get
-            Return _CrystalCapacity
-        End Get
-    End Property
-
-    Public ReadOnly Property DeuteriumCapacity() As Integer
-        Get
-            Return _DeuteriumCapacity
-        End Get
-    End Property
-
-    Public ReadOnly Property MetalStoragePercentage() As Integer
-        Get
-            Return _Metal / MetalCapacity * 100
-        End Get
-    End Property
-
-    Public ReadOnly Property CrystalStoragePercentage() As Integer
-        Get
-            Return _Crystal / _CrystalCapacity * 100
-        End Get
-    End Property
-
-    Public ReadOnly Property DeuteriumStoragePercentage() As Integer
-        Get
-            Return _Deuterium / _DeuteriumCapacity * 100
-        End Get
-    End Property
-
-    Public ReadOnly Property MetalOverflowETA() As TimeSpan
-        Get
-
+            Return _ResearchSecondsLeft
         End Get
     End Property
 
@@ -532,6 +498,7 @@ Public Class Planet
             _Deuterium = .Deuterium
 
             _Name = .PlanetName
+            _UserName = .UserName
             _ServerTime = .ServerTime
             'todo: event list
             _LargeImageUri = .LargeImageUri
@@ -548,106 +515,37 @@ Public Class Planet
         End With
     End Sub
 
-    ''' <summary>
-    ''' calculate production rate
-    ''' </summary>
-    ''' <remarks></remarks>
-    Private Sub CalculateProduction()
+    Private Function GetBuildingLevel(ByVal gid As Gid) As Integer
 
         Dim level As Integer
-        Dim percentage As Integer
 
-        'begin: calculate production and power consumption
-
-        _PowerConsumption = 0
-
-        'metal mine
-        If _BuildingLevelMap.ContainsKey(Gid.MetalMine) And _ProductionMap.ContainsKey(Gid.MetalMine) Then
-            level = _BuildingLevelMap(Gid.MetalMine)
-            percentage = _ProductionMap(Gid.MetalMine)
-            _MetalProduction = 30 * level * 1.1 ^ level * percentage / 100
-            _PowerConsumption += 10 * level * 1.1 ^ level
+        If _BuildingLevelMap.ContainsKey(gid) Then
+            level = _BuildingLevelMap(gid)
         Else
-            _MetalProduction = 0
+            level = 0
         End If
 
-        'crystal mine
-        If _BuildingLevelMap.ContainsKey(Gid.CrystalMine) And _ProductionMap.ContainsKey(Gid.CrystalMine) Then
-            level = _BuildingLevelMap(Gid.CrystalMine)
-            percentage = _ProductionMap(Gid.CrystalMine)
-            _CrystalProduction = 20 * level * 1.1 ^ level * percentage / 100
-            _PowerConsumption += 10 * level * 1.1 ^ level
+        Return level
+
+    End Function
+
+    Private Function GetResearchLevel(ByVal gid As Gid) As Integer
+
+        Dim level As Integer
+
+        If _ResearchLevelMap.ContainsKey(gid) Then
+            level = _ResearchLevelMap(gid)
         Else
-            _CrystalProduction = 0
+            level = 0
         End If
 
-        'deuterium synthesizer
-        If _BuildingLevelMap.ContainsKey(Gid.DeuteriumSynthesizer) And _ProductionMap.ContainsKey(Gid.DeuteriumSynthesizer) Then
-            level = _BuildingLevelMap(Gid.DeuteriumSynthesizer)
-            percentage = _ProductionMap(Gid.DeuteriumSynthesizer)
-            _DeuteriumProduction = 10 * level * 1.1 ^ level * (-0.002 * _HighestTemperature + 1.28) * percentage / 100
-            _PowerConsumption += 20 * level * 1.1 ^ level
-        Else
-            _DeuteriumProduction = 0
-        End If
+        Return level
 
-        'end: calculate production and power consumption
+    End Function
 
-        'begin: calculate power generation and deuterium consumption
+    Private Function ValidateLevel(ByVal levels As Dictionary(Of Gid, Integer), ByVal level As KeyValuePair(Of Gid, Integer)) As Boolean
 
-        _PowerGeneration = 0
-
-        'solar planet
-        If _BuildingLevelMap.ContainsKey(Gid.SolarPlant) And _ProductionMap.ContainsKey(Gid.SolarPlant) Then
-            level = _BuildingLevelMap(Gid.SolarPlant)
-            percentage = _ProductionMap(Gid.SolarPlant)
-            _PowerGeneration += 20 * level * 1.1 ^ level * percentage / 100
-        End If
-
-        'fusion planet
-        If _BuildingLevelMap.ContainsKey(Gid.FusionReactor) And _ProductionMap.ContainsKey(Gid.FusionReactor) Then
-            level = _BuildingLevelMap(Gid.FusionReactor)
-            percentage = _ProductionMap(Gid.FusionReactor)
-            _PowerGeneration += 50 * level * 1.1 ^ level * percentage / 100
-            _DeuteriumProduction -= 10 * level * 1.1 ^ (-0.002 * _HighestTemperature + 1.28) * percentage / 100
-        End If
-
-        'solar satelites
-        If _StationaryFleetMap IsNot Nothing AndAlso _StationaryFleetMap.ContainsKey(Gid.SolarSatellite) Then
-            level = _StationaryFleetMap(Gid.SolarSatellite)
-            percentage = 100
-            _PowerGeneration += Math.Min((_HighestTemperature / 4) + 20, 50) * level
-        End If
-
-        'end: calculate power generation and deuterium consumption
-
-    End Sub
-
-    Private Function CalculateCapacity(ByVal level As Integer) As Integer
-
-        Dim cap As Integer
-
-        Select Case level
-            Case 0 : cap = 100000
-            Case 1 : cap = 150000
-            Case 2 : cap = 200000
-            Case 3 : cap = 300000
-            Case 4 : cap = 400000
-            Case 5 : cap = 600000
-            Case 6 : cap = 900000
-            Case 7 : cap = 1400000
-            Case 8 : cap = 2200000
-            Case 9 : cap = 3500000
-            Case 10 : cap = 5550000
-            Case 11 : cap = 8850000
-            Case 12 : cap = 14150000
-            Case 13 : cap = 22600000
-            Case 14 : cap = 36100000
-            Case Else
-                Throw New NotImplementedException("CalculateCapacity not defined for level: " & level)
-        End Select
-
-        Return cap
+        Return levels.ContainsKey(level.Key) AndAlso levels(level.Key) >= level.Value
 
     End Function
 
@@ -760,12 +658,88 @@ Public Class Planet
         'End With
     End Sub
 
+    Public Sub BeginExecute(ByVal cmd As Command.CommandBase)
+
+        RaiseEvent EnqueueCommand(cmd)
+
+    End Sub
+
+    ''' <summary>
+    ''' 
+    ''' </summary>
+    ''' <param name="gid"></param>
+    ''' <returns></returns>
+    ''' <remarks>Returns Nothing before buildings page downloaded.</remarks>
+    Public Function CreateConstructCommand(ByVal gid As Gid) As Command.ConstructCommand
+
+        Dim cmd As Command.ConstructCommand
+
+        If _BuildingLevelMap IsNot Nothing Then
+            Dim currentLevel As Integer = GetBuildingLevel(gid)
+            Dim roboticsFactoryLevel As Integer = GetBuildingLevel(Ogame.Gid.RoboticsFactory)
+            Dim naniteFactoryLevel As Integer = GetBuildingLevel(Ogame.Gid.NaniteFactory)
+
+            cmd = New Command.ConstructCommand(_ServerName, _Id, gid, currentLevel, roboticsFactoryLevel, naniteFactoryLevel, AddressOf ValidateCommandEventHandler)
+            AddHandler cmd.Complete, AddressOf BuildingsCommand_Complete
+        Else
+            cmd = Nothing
+        End If
+
+        Return cmd
+
+    End Function
+
+    ''' <summary>
+    ''' 
+    ''' </summary>
+    ''' <param name="gid"></param>
+    ''' <returns></returns>
+    ''' <remarks>Returns Nothing before buildings page downloaded, or building level is 0.</remarks>
+    Public Function CreateDestroyCommand(ByVal gid As Gid) As Command.DestroyCommand
+
+        Dim cmd As Command.DestroyCommand
+
+        If _BuildingLevelMap IsNot Nothing Then
+            Dim currentLevel As Integer = GetBuildingLevel(gid)
+            If currentLevel > 0 Then
+                Dim roboticsFactoryLevel As Integer = GetBuildingLevel(Ogame.Gid.RoboticsFactory)
+                Dim naniteFactoryLevel As Integer = GetBuildingLevel(Ogame.Gid.NaniteFactory)
+
+                cmd = New Command.DestroyCommand(_ServerName, _Id, gid, currentLevel, roboticsFactoryLevel, naniteFactoryLevel, AddressOf ValidateCommandEventHandler)
+                AddHandler cmd.Complete, AddressOf BuildingsCommand_Complete
+            Else
+                cmd = Nothing
+            End If
+        Else
+            cmd = Nothing
+        End If
+
+        Return cmd
+
+    End Function
+
+    Public Function CreateCancelConstructCommand(ByVal gid As Gid) As Command.CancelConstructionCommand
+
+        Dim cmd As Command.CancelConstructionCommand
+
+        If _BuildingLevelMap IsNot Nothing Then
+            cmd = New Command.CancelConstructionCommand(_ServerName, _Id, gid)
+            AddHandler cmd.Complete, AddressOf BuildingsCommand_Complete
+        Else
+            cmd = Nothing
+        End If
+
+        Return cmd
+
+    End Function
+
 #Region "command completion event handlers"
 
     Private Sub OverviewCommand_Complete(ByVal page As Page.OverviewPage)
 
         If page.Parse() Then
             LoadOverview(page)
+            RaiseEvent Changed()
         End If
     End Sub
 
@@ -773,39 +747,9 @@ Public Class Planet
 
         If page.Parse() Then
             _BuildingLevelMap = page.LevelMap
-
-            'begin: calculate capacities
-            Dim level As Integer
-
-            'metal
-            If _BuildingLevelMap.ContainsKey(Gid.MetalStorage) Then
-                level = _BuildingLevelMap(Gid.MetalStorage)
-            Else
-                level = 0
-            End If
-            _MetalCapacity = CalculateCapacity(level)
-
-            'crystal
-            If _BuildingLevelMap.ContainsKey(Gid.CrystalStorage) Then
-                level = _BuildingLevelMap(Gid.CrystalStorage)
-            Else
-                level = 0
-            End If
-            _CrystalCapacity = CalculateCapacity(level)
-
-            'deuterium
-            If _BuildingLevelMap.ContainsKey(Gid.DeuteriumTank) Then
-                level = _BuildingLevelMap(Gid.DeuteriumTank)
-            Else
-                level = 0
-            End If
-            _DeuteriumCapacity = CalculateCapacity(level)
-
-            'end: calculate capacities
-
-            If _ProductionMap IsNot Nothing Then
-                CalculateProduction()
-            End If
+            _ConstructionTimeLeft = page.TimeLeft
+            _ConstructionSecondsLeft = page.SecondsLeft
+            RaiseEvent Changed()
         End If
     End Sub
 
@@ -813,10 +757,7 @@ Public Class Planet
 
         If page.Parse() Then
             _ProductionMap = page.PercentageMap
-
-            If _BuildingLevelMap IsNot Nothing Then
-                CalculateProduction()
-            End If
+            RaiseEvent Changed()
         End If
     End Sub
 
@@ -824,7 +765,10 @@ Public Class Planet
 
         If page.Parse() Then
             _ResearchLevelMap = page.LevelMap
+            _ResearchTimeLeft = page.TimeLeft
+            _ResearchSecondsLeft = page.SecondsLeft
             RaiseEvent ResearchLabUpdated(_ResearchLevelMap)
+            RaiseEvent Changed()
         End If
     End Sub
 
@@ -832,6 +776,7 @@ Public Class Planet
 
         If page.Parse() Then
             _StationaryFleetMap = page.UnitCountMap
+            RaiseEvent Changed()
         End If
     End Sub
 
@@ -841,7 +786,28 @@ Public Class Planet
             _PlanetaryDefenseMap = page.UnitCountMap
 
             'todo: shipyard queue
+
+            RaiseEvent Changed()
         End If
     End Sub
+
+    Private Function ValidateCommandEventHandler(ByVal metalCost As Integer, ByVal crystalCost As Integer, ByVal deuteriumCost As Integer, ByVal dependencies As Dictionary(Of Gid, Integer))
+
+        Dim valid As Boolean = True
+
+        If metalCost > _Metal OrElse crystalCost > _Crystal OrElse deuteriumCost > _Deuterium Then
+            valid = False
+        Else
+            For Each level As KeyValuePair(Of Gid, Integer) In dependencies
+                If Not ValidateLevel(BuildingLevelMap, level) AndAlso Not ValidateLevel(ResearchLevelMap, level) Then
+                    valid = False
+                    Exit For
+                End If
+            Next
+        End If
+
+        Return valid
+
+    End Function
 #End Region
 End Class
