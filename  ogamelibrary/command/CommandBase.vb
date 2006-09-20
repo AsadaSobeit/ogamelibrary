@@ -8,6 +8,13 @@ Namespace Command
 
     Public MustInherit Class CommandBase
 
+        Public Enum CommandState
+            Ready
+            Done
+            Failed
+            Skipped
+        End Enum
+
 #Region "shared"
 
         Private Const SESSION_ID_PATTERN As String = "(?<=/game/index[.]php[?]session=)\w{12}"
@@ -114,7 +121,16 @@ Namespace Command
         'http parameter cp. If it is set to Nothing, planetId refers to home planet.
         Private ReadOnly _PlanetId As String
 
+        Private _Uri As String
+
+        Private _State As CommandState
+        Private _LastException As Exception
+
         Public Sub New(ByVal serverName As String)
+
+            _Uri = Nothing
+            _State = CommandState.Ready
+            _LastException = Nothing
 
             _ServerName = serverName
             _PlanetId = Nothing
@@ -122,6 +138,10 @@ Namespace Command
         End Sub
 
         Public Sub New(ByVal serverName As String, ByVal planetId As String)
+
+            _Uri = Nothing
+            _State = CommandState.Ready
+            _LastException = Nothing
 
             _ServerName = serverName
             _PlanetId = planetId
@@ -140,6 +160,18 @@ Namespace Command
             End Get
         End Property
 
+        Public ReadOnly Property State() As CommandState
+            Get
+                Return _State
+            End Get
+        End Property
+
+        Public ReadOnly Property LastException() As Exception
+            Get
+                Return _LastException
+            End Get
+        End Property
+
         Public Sub Execute(ByVal sessionId As String)
 
             'Dim wb As New Net.WebClient()
@@ -150,11 +182,23 @@ Namespace Command
             'Dim unicodeString As String = Encoding.Unicode.GetString(unicodeBytes)
 
             'SetPageContent(unicodeString)
-            Dim uriStr As String = GetUri(sessionId)
 
-            Dim html As String = Post(uriStr)
+            Try
+                _Uri = GetUri(sessionId)
+                Dim html As String = Post(_Uri)
+                SetPageContent(html)
 
-            SetPageContent(html)
+                _State = CommandState.Done
+                _LastException = Nothing
+            Catch ex As Exception
+                _State = CommandState.Failed
+                _LastException = New OGameException(_Uri, ex)
+            End Try
+        End Sub
+
+        Public Sub Skip()
+
+            _State = CommandState.Skipped
 
         End Sub
 
@@ -165,6 +209,12 @@ Namespace Command
             Else
                 GetUri = String.Format(PlanetUriFormat, _ServerName, session, _PlanetId)
             End If
+        End Function
+
+        Public Overrides Function ToString() As String
+
+            Return _Uri
+
         End Function
 
         ''' <summary>

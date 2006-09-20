@@ -1,25 +1,75 @@
+Imports System.ComponentModel
 Imports System.Math
 
+<DataObject(True)> _
 Public Class PlanetView
 
 #Region "variables"
 
     Private ReadOnly _Planet As Planet
 
-    Private _MetalProduction As Double
-    Private _CrystalProduction As Double
-    Private _DeuteriumProduction As Double
-    Private _DeuteriumConsumption As Double
+    Private _LocalTime As Date
+    Private _DeuteriumDepletedETA As Date
 
-    Private _PowerGeneration As Double
-    Private _PowerConsumption As Double
+    'begin: before deuterium depleted
 
-    Private _MetalMineEnergy As Double
-    Private _CrystalMineEnergy As Double
-    Private _DeuteriumSynthesizerEnergy As Double
-    Private _SolarPlanetEnergy As Double
-    Private _FusionReactorEnergy As Double
-    Private _SolarSateliteEnergy As Double
+    Private _MetalProduction_0 As Double
+    Private _CrystalProduction_0 As Double
+    Private _DeuteriumProduction_0 As Double
+    Private _DeuteriumConsumption_0 As Double
+
+    Private _MetalMineEnergyConsumption_0 As Double
+    Private _CrystalMineEnergyConsumption_0 As Double
+    Private _DeuteriumSynthesizerEnergyConsumption_0 As Double
+    Private _EnergyConsumptionTotal_0 As Double
+
+    Private _FusionReactorEnergyGeneration_0 As Double
+    Private _EnergyGenerationPotentialTotal_0 As Double
+
+    'end: before deuterium depleted
+
+    'begin: on deuterium depleted
+
+    Private _Metal_D As Double
+    Private _Crystal_D As Double
+    Private _Deuterium_D As Double
+
+    'end: on deuterium depleted
+
+    'begin: after deuterium depleted
+
+    Private _MetalProduction_1 As Double
+    Private _CrystalProduction_1 As Double
+    Private _DeuteriumProduction_1 As Double
+    Private _DeuteriumConsumption_1 As Double
+
+    Private _MetalMineEnergyConsumption_1 As Double
+    Private _CrystalMineEnergyConsumption_1 As Double
+    Private _DeuteriumSynthesizerEnergyConsumption_1 As Double
+    Private _EnergyConsumptionTotal_1 As Double
+
+    Private _FusionReactorEnergyGeneration_1 As Double
+    Private _EnergyGenerationPotentialTotal_1 As Double
+
+    'end: after deuterium depleted
+
+    Private _MetalProductionPotential As Double
+    Private _CrystalProductionPotential As Double
+    Private _DeuteriumProductionPotential As Double
+    Private _DeuteriumConsumptionPotential As Double
+
+    'Private _EnergyGenerationPotentialTotal As Double
+    Private _EnergyConsumptionPotentialTotal As Double
+
+    Private _MetalMineEnergyConsumptionPotential As Double
+    Private _CrystalMineEnergyConsumptionPotential As Double
+    Private _DeuteriumSynthesizerEnergyConsumptionPotential As Double
+
+    Private _FusionReactorEnergyGenerationPotential As Double
+
+    Private _SolarPlanetEnergyGeneration As Double
+    'Private _FusionReactorEnergyGeneration As Double
+    Private _SolarSateliteEnergyGeneration As Double
 
     Private _MetalMineProductionPercentage As Integer
     Private _CrystalMineProductionPercentage As Integer
@@ -35,38 +85,87 @@ Public Class PlanetView
     Private _FusionReactorLevel As Integer
     Private _SolarSateliteLevel As Integer
 
+    Private _MetalStorageLevel As Integer
+    Private _CrystalStorageLevel As Integer
+    Private _DeuteriumTankLevel As Integer
+
     Private _MetalCapacity As Double
     Private _CrystalCapacity As Double
     Private _DeuteriumCapacity As Double
 
-    Private _MetalProductionPotential As Double
-    Private _CrystalProductionPotential As Double
-    Private _DeuteriumProductionPotential As Double
-    Private _MetalMineEnergyPotential As Double
-    Private _CrystalMineEnergyPotential As Double
-    Private _DeuteriumSynthesizerEnergyPotential As Double
+    Private _MetalOverflowETA As Date
+    Private _CrystalOverflowETA As Date
+    Private _DeuteriumOverflowETA As Date
 
 #End Region
 
+    ''' <summary>
+    ''' todo: set Double.NaN
+    ''' </summary>
+    ''' <param name="p"></param>
+    ''' <remarks></remarks>
     Public Sub New(ByVal p As Planet)
 
         _Planet = p
         AddHandler p.Changed, AddressOf ChangedEventHandler
 
-        _MetalProduction = Double.NaN
-        _CrystalProduction = Double.NaN
-        _DeuteriumProduction = Double.NaN
-        _DeuteriumConsumption = Double.NaN
+        'begin: before deuterium depleted
 
-        _PowerGeneration = Double.NaN
-        _PowerConsumption = Double.NaN
+        _MetalProduction_0 = Double.NaN
+        _CrystalProduction_0 = Double.NaN
+        _DeuteriumProduction_0 = Double.NaN
+        _DeuteriumConsumption_0 = Double.NaN
 
-        _MetalMineEnergy = Double.NaN
-        _CrystalMineEnergy = Double.NaN
-        _DeuteriumSynthesizerEnergy = Double.NaN
-        _SolarPlanetEnergy = Double.NaN
-        _FusionReactorEnergy = Double.NaN
-        _SolarSateliteEnergy = Double.NaN
+        _MetalMineEnergyConsumption_0 = Double.NaN
+        _CrystalMineEnergyConsumption_0 = Double.NaN
+        _DeuteriumSynthesizerEnergyConsumption_0 = Double.NaN
+        _EnergyConsumptionTotal_0 = Double.NaN
+
+        _FusionReactorEnergyGeneration_0 = Double.NaN
+        _EnergyGenerationPotentialTotal_0 = Double.NaN
+
+        'end: before deuterium depleted
+
+        'begin: on deuterium depleted
+
+        _Metal_D = Double.NaN
+        _Crystal_D = Double.NaN
+        _Deuterium_D = Double.NaN
+
+        'end: on deuterium depleted
+
+        'begin: after deuterium depleted
+
+        _MetalProduction_1 = Double.NaN
+        _CrystalProduction_1 = Double.NaN
+        _DeuteriumProduction_1 = Double.NaN
+        _DeuteriumConsumption_1 = Double.NaN
+
+        _MetalMineEnergyConsumption_1 = Double.NaN
+        _CrystalMineEnergyConsumption_1 = Double.NaN
+        _DeuteriumSynthesizerEnergyConsumption_1 = Double.NaN
+        _EnergyConsumptionTotal_1 = Double.NaN
+
+        _FusionReactorEnergyGeneration_1 = Double.NaN
+        _EnergyGenerationPotentialTotal_1 = Double.NaN
+
+        'end: after deuterium depleted
+
+        _MetalProductionPotential = Double.NaN
+        _CrystalProductionPotential = Double.NaN
+        _DeuteriumProductionPotential = Double.NaN
+        _DeuteriumConsumptionPotential = Double.NaN
+
+        _EnergyConsumptionPotentialTotal = Double.NaN
+
+        _MetalMineEnergyConsumptionPotential = Double.NaN
+        _CrystalMineEnergyConsumptionPotential = Double.NaN
+        _DeuteriumSynthesizerEnergyConsumptionPotential = Double.NaN
+
+        _FusionReactorEnergyGenerationPotential = Double.NaN
+
+        _SolarPlanetEnergyGeneration = Double.NaN
+        _SolarSateliteEnergyGeneration = Double.NaN
 
         _MetalMineProductionPercentage = -1
         _CrystalMineProductionPercentage = -1
@@ -85,6 +184,10 @@ Public Class PlanetView
         _MetalCapacity = Double.NaN
         _CrystalCapacity = Double.NaN
         _DeuteriumCapacity = Double.NaN
+
+        _MetalOverflowETA = Date.MinValue
+        _CrystalOverflowETA = Date.MinValue
+        _DeuteriumOverflowETA = Date.MinValue
 
     End Sub
 
@@ -171,12 +274,6 @@ Public Class PlanetView
     Public ReadOnly Property ServerTime() As String
         Get
             Return _Planet.ServerTime
-        End Get
-    End Property
-
-    Public ReadOnly Property LocalTime() As Date
-        Get
-            Return _Planet.LocalTime
         End Get
     End Property
 
@@ -289,11 +386,20 @@ Public Class PlanetView
     End Property
 #End Region
 
-#Region "properties"
+#Region "fields for data binding"
+
+    Public Property LocalTime() As Date
+        Get
+            Return _LocalTime
+        End Get
+        Set(ByVal value As Date)
+            _LocalTime = value
+        End Set
+    End Property
 
     Public ReadOnly Property Metal() As String
         Get
-            If Double.IsNaN(_MetalProduction) OrElse Double.IsNaN(_MetalCapacity) Then
+            If Double.IsNaN(_MetalProduction_0) OrElse Double.IsNaN(_MetalProduction_1) OrElse Double.IsNaN(_MetalCapacity) Then
                 Metal = "n/a"
             Else
                 Metal = CurrentMetal
@@ -303,7 +409,7 @@ Public Class PlanetView
 
     Public ReadOnly Property Crystal() As String
         Get
-            If Double.IsNaN(_CrystalProduction) OrElse Double.IsNaN(_CrystalCapacity) Then
+            If Double.IsNaN(_CrystalProduction_0) OrElse Double.IsNaN(_CrystalProduction_1) OrElse Double.IsNaN(_CrystalCapacity) Then
                 Crystal = "n/a"
             Else
                 Crystal = CurrentCrystal
@@ -313,7 +419,7 @@ Public Class PlanetView
 
     Public ReadOnly Property Deuterium() As String
         Get
-            If Double.IsNaN(_DeuteriumProduction) OrElse Double.IsNaN(_DeuteriumCapacity) Then
+            If Double.IsNaN(_DeuteriumProduction_0) OrElse Double.IsNaN(_DeuteriumProduction_1) OrElse Double.IsNaN(_DeuteriumCapacity) Then
                 Deuterium = "n/a"
             Else
                 Deuterium = CurrentDeuterium
@@ -321,139 +427,237 @@ Public Class PlanetView
         End Get
     End Property
 
+    Public ReadOnly Property MetalProductionPotential() As String
+        Get
+            If Double.IsNaN(_MetalProductionPotential) Then
+                MetalProductionPotential = "n/a"
+            Else
+                MetalProductionPotential = Fix(_MetalProductionPotential)
+            End If
+        End Get
+    End Property
+
+    Public ReadOnly Property CrystalProductionPotential() As String
+        Get
+            If Double.IsNaN(_CrystalProductionPotential) Then
+                CrystalProductionPotential = "n/a"
+            Else
+                CrystalProductionPotential = Fix(_CrystalProductionPotential)
+            End If
+        End Get
+    End Property
+
+    Public ReadOnly Property DeuteriumProductionPotential() As String
+        Get
+            If Double.IsNaN(_DeuteriumProductionPotential) Then
+                DeuteriumProductionPotential = "n/a"
+            Else
+                DeuteriumProductionPotential = Fix(_DeuteriumProductionPotential)
+            End If
+        End Get
+    End Property
+
     Public ReadOnly Property MetalProduction() As String
         Get
-            If Double.IsNaN(_MetalProduction) Then
+            If Double.IsNaN(_MetalProduction_0) OrElse Double.IsNaN(_MetalProduction_1) Then
                 MetalProduction = "n/a"
+            ElseIf NotDeuteriumDepleted Then
+                MetalProduction = Fix(_MetalProduction_0)
             Else
-                MetalProduction = Fix(_MetalProduction)
+                MetalProduction = Fix(_MetalProduction_1)
             End If
         End Get
     End Property
 
     Public ReadOnly Property CrystalProduction() As String
         Get
-            If Double.IsNaN(_CrystalProduction) Then
+            If Double.IsNaN(_CrystalProduction_0) OrElse Double.IsNaN(_CrystalProduction_1) Then
                 CrystalProduction = "n/a"
+            ElseIf NotDeuteriumDepleted Then
+                CrystalProduction = Fix(_CrystalProduction_0)
             Else
-                CrystalProduction = Fix(_CrystalProduction)
+                CrystalProduction = Fix(_CrystalProduction_1)
             End If
         End Get
     End Property
 
     Public ReadOnly Property DeuteriumProduction() As String
         Get
-            If Double.IsNaN(_DeuteriumProduction) Then
+            If Double.IsNaN(_DeuteriumProduction_0) OrElse Double.IsNaN(_DeuteriumProduction_1) Then
                 DeuteriumProduction = "n/a"
-            ElseIf _DeuteriumProduction < 0 AndAlso Deuterium = 0 Then
-                DeuteriumProduction = 0
+            ElseIf NotDeuteriumDepleted Then
+                DeuteriumProduction = Fix(_DeuteriumProduction_0)
             Else
-                DeuteriumProduction = Fix(_DeuteriumProduction)
+                DeuteriumProduction = Fix(_DeuteriumProduction_1)
             End If
         End Get
     End Property
 
-    Public ReadOnly Property PowerGeneration() As String
+    Public ReadOnly Property EnergyGenerationPotentialTotal() As String
         Get
-            If Double.IsNaN(_PowerGeneration) Then
-                PowerGeneration = "n/a"
-            ElseIf _DeuteriumProduction >= 0 OrElse Deuterium > 0 Then
-                PowerGeneration = Fix(_PowerGeneration)
+            If Double.IsNaN(_EnergyGenerationPotentialTotal_0) OrElse Double.IsNaN(_EnergyGenerationPotentialTotal_1) Then
+                EnergyGenerationPotentialTotal = "n/a"
+            ElseIf NotDeuteriumDepleted Then
+                EnergyGenerationPotentialTotal = Fix(_EnergyGenerationPotentialTotal_0)
             Else
-                PowerGeneration = Fix(_PowerGeneration - _FusionReactorEnergy + _FusionReactorEnergy * _DeuteriumProduction / _DeuteriumConsumption)
+                EnergyGenerationPotentialTotal = Fix(_EnergyGenerationPotentialTotal_1)
             End If
         End Get
     End Property
 
-    Public ReadOnly Property PowerConsumption() As String
+    Public ReadOnly Property EnergyConsumptionPotentialTotal() As String
         Get
-            If Double.IsNaN(_PowerConsumption) Then
-                PowerConsumption = "n/a"
+            If Double.IsNaN(_EnergyConsumptionPotentialTotal) Then
+                EnergyConsumptionPotentialTotal = "n/a"
             Else
-                PowerConsumption = Fix(_PowerConsumption)
+                EnergyConsumptionPotentialTotal = Fix(_EnergyConsumptionPotentialTotal)
             End If
         End Get
     End Property
 
     Public ReadOnly Property ProductionFactor() As String
         Get
-            If Double.IsNaN(_PowerGeneration) OrElse Double.IsNaN(_PowerConsumption) Then
+            If Double.IsNaN(_EnergyConsumptionPotentialTotal) Then
                 ProductionFactor = "n/a"
-            ElseIf _PowerConsumption = 0 Then
+            ElseIf _EnergyConsumptionPotentialTotal = 0 Then
                 ProductionFactor = 0
             Else
-                ProductionFactor = Min(Round(_PowerGeneration / _PowerConsumption, 2), 1)
+                If NotDeuteriumDepleted Then
+                    If Double.IsNaN(_EnergyGenerationPotentialTotal_0) Then
+                        ProductionFactor = "n/a"
+                    Else
+                        ProductionFactor = Min(Round(_EnergyGenerationPotentialTotal_0 / _EnergyConsumptionPotentialTotal, 2), 1)
+                    End If
+                Else
+                    If Double.IsNaN(_EnergyGenerationPotentialTotal_1) Then
+                        ProductionFactor = "n/a"
+                    Else
+                        ProductionFactor = Min(Round(_EnergyGenerationPotentialTotal_1 / _EnergyConsumptionPotentialTotal, 2), 1)
+                    End If
+                End If
             End If
         End Get
     End Property
 
     Public ReadOnly Property MetalMineEnergy() As String
         Get
-            If Double.IsNaN(_MetalMineEnergy) Then
+            If Double.IsNaN(_MetalMineEnergyConsumption_0) OrElse Double.IsNaN(_MetalMineEnergyConsumption_1) Then
                 MetalMineEnergy = "n/a"
+            ElseIf NotDeuteriumDepleted Then
+                MetalMineEnergy = Fix(_MetalMineEnergyConsumption_0)
             Else
-                MetalMineEnergy = Fix(_MetalMineEnergy)
+                MetalMineEnergy = Fix(_MetalMineEnergyConsumption_1)
             End If
         End Get
     End Property
 
     Public ReadOnly Property CrystalMineEnergy() As String
         Get
-            If Double.IsNaN(_CrystalMineEnergy) Then
+            If Double.IsNaN(_CrystalMineEnergyConsumption_0) OrElse Double.IsNaN(_CrystalMineEnergyConsumption_1) Then
                 CrystalMineEnergy = "n/a"
+            ElseIf NotDeuteriumDepleted Then
+                CrystalMineEnergy = Fix(_CrystalMineEnergyConsumption_0)
             Else
-                CrystalMineEnergy = Fix(_CrystalMineEnergy)
+                CrystalMineEnergy = Fix(_CrystalMineEnergyConsumption_1)
             End If
         End Get
     End Property
 
     Public ReadOnly Property DeuteriumSynthesizerEnergy() As String
         Get
-            If Double.IsNaN(_DeuteriumSynthesizerEnergy) Then
+            If Double.IsNaN(_DeuteriumSynthesizerEnergyConsumption_0) OrElse Double.IsNaN(_DeuteriumSynthesizerEnergyConsumption_0) Then
                 DeuteriumSynthesizerEnergy = "n/a"
+            ElseIf NotDeuteriumDepleted Then
+                DeuteriumSynthesizerEnergy = Fix(_DeuteriumSynthesizerEnergyConsumption_0)
             Else
-                DeuteriumSynthesizerEnergy = Fix(_DeuteriumSynthesizerEnergy)
+                DeuteriumSynthesizerEnergy = Fix(_DeuteriumSynthesizerEnergyConsumption_1)
+            End If
+        End Get
+    End Property
+
+    Public ReadOnly Property EnergyConsumptionTotal() As String
+        Get
+            If Double.IsNaN(_EnergyConsumptionTotal_0) OrElse Double.IsNaN(_EnergyConsumptionTotal_1) Then
+                EnergyConsumptionTotal = "n/a"
+            ElseIf NotDeuteriumDepleted Then
+                EnergyConsumptionTotal = Fix(_EnergyConsumptionTotal_0)
+            Else
+                EnergyConsumptionTotal = Fix(_EnergyConsumptionTotal_1)
+            End If
+        End Get
+    End Property
+
+    Public ReadOnly Property MetalMineEnergyConsumptionPotential() As String
+        Get
+            If Double.IsNaN(_MetalMineEnergyConsumptionPotential) Then
+                MetalMineEnergyConsumptionPotential = "n/a"
+            Else
+                MetalMineEnergyConsumptionPotential = Fix(_MetalMineEnergyConsumptionPotential)
+            End If
+        End Get
+    End Property
+
+    Public ReadOnly Property CrystalMineEnergyConsumptionPotential() As String
+        Get
+            If Double.IsNaN(_CrystalMineEnergyConsumptionPotential) Then
+                CrystalMineEnergyConsumptionPotential = "n/a"
+            Else
+                CrystalMineEnergyConsumptionPotential = Fix(_CrystalMineEnergyConsumptionPotential)
+            End If
+        End Get
+    End Property
+
+    Public ReadOnly Property DeuteriumSynthesizerEnergyConsumptionPotential() As String
+        Get
+            If Double.IsNaN(_DeuteriumSynthesizerEnergyConsumptionPotential) Then
+                DeuteriumSynthesizerEnergyConsumptionPotential = "n/a"
+            Else
+                DeuteriumSynthesizerEnergyConsumptionPotential = Fix(_DeuteriumSynthesizerEnergyConsumptionPotential)
             End If
         End Get
     End Property
 
     Public ReadOnly Property SolarPlanetEnergy() As String
         Get
-            If Double.IsNaN(_SolarPlanetEnergy) Then
+            If Double.IsNaN(_SolarPlanetEnergyGeneration) Then
                 SolarPlanetEnergy = "n/a"
             Else
-                SolarPlanetEnergy = Fix(_SolarPlanetEnergy)
+                SolarPlanetEnergy = Fix(_SolarPlanetEnergyGeneration)
             End If
         End Get
     End Property
 
     Public ReadOnly Property FusionReactorEnergy() As String
         Get
-            If Double.IsNaN(_FusionReactorEnergy) Then
+            If Double.IsNaN(_FusionReactorEnergyGeneration_0) OrElse Double.IsNaN(_FusionReactorEnergyGeneration_1) Then
                 FusionReactorEnergy = "n/a"
+            ElseIf NotDeuteriumDepleted Then
+                FusionReactorEnergy = Fix(_FusionReactorEnergyGeneration_0)
             Else
-                FusionReactorEnergy = Fix(_FusionReactorEnergy)
+                FusionReactorEnergy = Fix(_FusionReactorEnergyGeneration_1)
             End If
         End Get
     End Property
 
     Public ReadOnly Property SolarSateliteEnergy() As String
         Get
-            If Double.IsNaN(_SolarSateliteEnergy) Then
+            If Double.IsNaN(_SolarSateliteEnergyGeneration) Then
                 SolarSateliteEnergy = "n/a"
             Else
-                SolarSateliteEnergy = Fix(_SolarSateliteEnergy)
+                SolarSateliteEnergy = Fix(_SolarSateliteEnergyGeneration)
             End If
         End Get
     End Property
 
     Public ReadOnly Property TotalEnergy() As String
         Get
-            If Double.IsNaN(_MetalMineEnergy) OrElse Double.IsNaN(_CrystalMineEnergy) OrElse Double.IsNaN(_DeuteriumSynthesizerEnergy) OrElse _
-                Double.IsNaN(_SolarPlanetEnergy) OrElse Double.IsNaN(_FusionReactorEnergy) OrElse Double.IsNaN(_SolarSateliteEnergy) Then
+            If Double.IsNaN(_MetalMineEnergyConsumption_0) OrElse Double.IsNaN(_CrystalMineEnergyConsumption_0) OrElse Double.IsNaN(_DeuteriumSynthesizerEnergyConsumption_0) OrElse _
+                Double.IsNaN(_SolarPlanetEnergyGeneration) OrElse Double.IsNaN(_FusionReactorEnergyGeneration_0) OrElse Double.IsNaN(_SolarSateliteEnergyGeneration) Then
                 TotalEnergy = "n/a"
+            ElseIf NotDeuteriumDepleted Then
+                TotalEnergy = Fix(-_MetalMineEnergyConsumption_0 + -_CrystalMineEnergyConsumption_0 + -_DeuteriumSynthesizerEnergyConsumption_0 + _SolarPlanetEnergyGeneration + _FusionReactorEnergyGeneration_0 + _SolarSateliteEnergyGeneration)
             Else
-                TotalEnergy = Fix(_MetalMineEnergy + _CrystalMineEnergy + _DeuteriumSynthesizerEnergy + _SolarPlanetEnergy + _FusionReactorEnergy + _SolarSateliteEnergy)
+                TotalEnergy = Fix(-_MetalMineEnergyConsumption_1 + -_CrystalMineEnergyConsumption_1 + -_DeuteriumSynthesizerEnergyConsumption_1 + _SolarPlanetEnergyGeneration + _FusionReactorEnergyGeneration_1 + _SolarSateliteEnergyGeneration)
             End If
         End Get
     End Property
@@ -490,7 +694,7 @@ Public Class PlanetView
 
     Public ReadOnly Property MetalStoragePercentage() As String
         Get
-            If Double.IsNaN(_MetalCapacity) OrElse Double.IsNaN(_MetalProduction) OrElse Double.IsNaN(_MetalCapacity) Then
+            If Double.IsNaN(_MetalCapacity) OrElse Double.IsNaN(_MetalProduction_0) OrElse Double.IsNaN(_MetalCapacity) Then
                 MetalStoragePercentage = "n/a"
             Else
                 MetalStoragePercentage = CInt(CurrentMetal / _MetalCapacity / 10)
@@ -500,7 +704,7 @@ Public Class PlanetView
 
     Public ReadOnly Property CrystalStoragePercentage() As String
         Get
-            If Double.IsNaN(_CrystalCapacity) OrElse Double.IsNaN(_CrystalProduction) OrElse Double.IsNaN(_CrystalCapacity) Then
+            If Double.IsNaN(_CrystalCapacity) OrElse Double.IsNaN(_CrystalProduction_0) OrElse Double.IsNaN(_CrystalCapacity) Then
                 CrystalStoragePercentage = "n/a"
             Else
                 CrystalStoragePercentage = CInt(CurrentCrystal / _CrystalCapacity / 10)
@@ -510,7 +714,7 @@ Public Class PlanetView
 
     Public ReadOnly Property DeuteriumStoragePercentage() As String
         Get
-            If Double.IsNaN(_DeuteriumCapacity) OrElse Double.IsNaN(_DeuteriumProduction) OrElse Double.IsNaN(_DeuteriumCapacity) Then
+            If Double.IsNaN(_DeuteriumCapacity) OrElse Double.IsNaN(_DeuteriumProduction_0) OrElse Double.IsNaN(_DeuteriumCapacity) Then
                 DeuteriumStoragePercentage = "n/a"
             Else
                 DeuteriumStoragePercentage = CInt(CurrentDeuterium / _DeuteriumCapacity / 10)
@@ -520,25 +724,40 @@ Public Class PlanetView
 
     Public ReadOnly Property MetalOverflowETA() As String
         Get
-            Return EstimateTime(_Planet.Metal, _MetalProduction, _MetalCapacity)
+            'Return EstimateTime(_Planet.Metal, _MetalProduction_0, _MetalCapacity)
+            If _MetalOverflowETA = Date.MinValue Then
+                MetalOverflowETA = "n/a"
+            Else
+                MetalOverflowETA = _MetalOverflowETA
+            End If
         End Get
     End Property
 
     Public ReadOnly Property CrystalOverflowETA() As String
         Get
-            Return EstimateTime(_Planet.Crystal, _CrystalProduction, _CrystalCapacity)
+            'Return EstimateTime(_Planet.Crystal, _CrystalProduction_0, _CrystalCapacity)
+            If _CrystalOverflowETA = Date.MinValue Then
+                CrystalOverflowETA = "n/a"
+            Else
+                CrystalOverflowETA = _CrystalOverflowETA
+            End If
         End Get
     End Property
 
     Public ReadOnly Property DeuteriumOverflowETA() As String
         Get
-            Return EstimateTime(_Planet.Deuterium, _DeuteriumProduction, _DeuteriumCapacity)
+            'Return EstimateTime(_Planet.Deuterium, _DeuteriumProduction_0, _DeuteriumCapacity)
+            If _DeuteriumOverflowETA = Date.MinValue Then
+                DeuteriumOverflowETA = "n/a"
+            Else
+                DeuteriumOverflowETA = _DeuteriumOverflowETA
+            End If
         End Get
     End Property
 
     Public ReadOnly Property Total() As String
         Get
-            If Double.IsNaN(_MetalProduction) OrElse Double.IsNaN(_CrystalProduction) OrElse Double.IsNaN(_DeuteriumProduction) OrElse _
+            If Double.IsNaN(_MetalProduction_0) OrElse Double.IsNaN(_CrystalProduction_0) OrElse Double.IsNaN(_DeuteriumProduction_0) OrElse _
                 Double.IsNaN(_MetalCapacity) OrElse Double.IsNaN(_CrystalCapacity) OrElse Double.IsNaN(_DeuteriumCapacity) Then
                 Total = "n/a"
             Else
@@ -559,7 +778,7 @@ Public Class PlanetView
 
     Public ReadOnly Property TotalProduction() As String
         Get
-            If Double.IsNaN(_MetalProduction) OrElse Double.IsNaN(_CrystalProduction) OrElse Double.IsNaN(_DeuteriumProduction) Then
+            If Double.IsNaN(_MetalProduction_0) OrElse Double.IsNaN(_CrystalProduction_0) OrElse Double.IsNaN(_DeuteriumProduction_0) Then
                 TotalProduction = "n/a"
             Else
                 TotalProduction = CInt(GetTotalProduction())
@@ -722,98 +941,92 @@ Public Class PlanetView
 
     Private Sub ChangedEventHandler()
 
-        Dim level As Integer
-        Dim percentage As Integer
-        Dim _BuildingLevelMap As Dictionary(Of Gid, Integer) = _Planet.BuildingLevelMap
-        Dim _productionMap As Dictionary(Of Gid, Integer) = _Planet.ProductionMap
-        Dim _HighestTemperature As Integer = _Planet.HighestTemperature
-        Dim _StationaryFleetMap As Dictionary(Of Gid, Integer) = _Planet.StationaryFleetMap
-
-        If _BuildingLevelMap Is Nothing Then
+        Dim buildingLevels As Dictionary(Of Gid, Integer) = _Planet.BuildingLevelMap
+        If buildingLevels Is Nothing Then
             Exit Sub
         End If
 
         'begin: calculate capacities
-        'Dim level As Integer
 
         'metal
-        If _BuildingLevelMap.ContainsKey(Gid.MetalStorage) Then
-            level = _BuildingLevelMap(Gid.MetalStorage)
+        If buildingLevels.ContainsKey(Gid.MetalStorage) Then
+            _MetalStorageLevel = buildingLevels(Gid.MetalStorage)
         Else
-            level = 0
+            _MetalStorageLevel = 0
         End If
-        _MetalCapacity = CalculateCapacity(level)
+        _MetalCapacity = CalculateCapacity(_MetalStorageLevel)
 
         'crystal
-        If _BuildingLevelMap.ContainsKey(Gid.CrystalStorage) Then
-            level = _BuildingLevelMap(Gid.CrystalStorage)
+        If buildingLevels.ContainsKey(Gid.CrystalStorage) Then
+            _CrystalStorageLevel = buildingLevels(Gid.CrystalStorage)
         Else
-            level = 0
+            _CrystalStorageLevel = 0
         End If
-        _CrystalCapacity = CalculateCapacity(level)
+        _CrystalCapacity = CalculateCapacity(_CrystalStorageLevel)
 
         'deuterium
-        If _BuildingLevelMap.ContainsKey(Gid.DeuteriumTank) Then
-            level = _BuildingLevelMap(Gid.DeuteriumTank)
+        If buildingLevels.ContainsKey(Gid.DeuteriumTank) Then
+            _DeuteriumTankLevel = buildingLevels(Gid.DeuteriumTank)
         Else
-            level = 0
+            _DeuteriumTankLevel = 0
         End If
-        _DeuteriumCapacity = CalculateCapacity(level)
+        _DeuteriumCapacity = CalculateCapacity(_DeuteriumTankLevel)
 
         'end: calculate capacities
 
-        If _productionMap Is Nothing Then
+        Dim _workloads As Dictionary(Of Gid, Integer) = _Planet.ProductionMap
+        If _workloads Is Nothing Then
             Exit Sub
         End If
 
+        Dim highestTemperature As Integer = _Planet.HighestTemperature
+
         'begin: calculate production and power consumption
 
-        _PowerConsumption = 0
-
         'metal mine
-        If _BuildingLevelMap.ContainsKey(Gid.MetalMine) AndAlso _productionMap.ContainsKey(Gid.MetalMine) Then
-            level = _BuildingLevelMap(Gid.MetalMine)
-            percentage = _productionMap(Gid.MetalMine)
-            _MetalProduction = 20 + 30 * level * 1.1 ^ level * percentage / 100
-            _MetalMineEnergy = -10 * level * 1.1 ^ level * percentage / 100
-            _PowerConsumption += -_MetalMineEnergy
+        If buildingLevels.ContainsKey(Gid.MetalMine) AndAlso _workloads.ContainsKey(Gid.MetalMine) Then
+            Dim level As Integer = buildingLevels(Gid.MetalMine)
+            Dim percentage As Integer = _workloads(Gid.MetalMine)
+
+            _MetalProductionPotential = 30 * level * 1.1 ^ level * percentage / 100
+            _MetalMineEnergyConsumptionPotential = 10 * level * 1.1 ^ level * percentage / 100
             _MetalMineLevel = level
             _MetalMineProductionPercentage = percentage
         Else
-            _MetalProduction = 20
-            _MetalMineEnergy = 0
+            _MetalProductionPotential = 0
+            _MetalMineEnergyConsumptionPotential = 0
             _MetalMineLevel = 0
             _MetalMineProductionPercentage = 0
         End If
 
         'crystal mine
-        If _BuildingLevelMap.ContainsKey(Gid.CrystalMine) AndAlso _productionMap.ContainsKey(Gid.CrystalMine) Then
-            level = _BuildingLevelMap(Gid.CrystalMine)
-            percentage = _productionMap(Gid.CrystalMine)
-            _CrystalProduction = 10 + 20 * level * 1.1 ^ level * percentage / 100
-            _CrystalMineEnergy = -10 * level * 1.1 ^ level * percentage / 100
-            _PowerConsumption += -_CrystalMineEnergy
+        If buildingLevels.ContainsKey(Gid.CrystalMine) AndAlso _workloads.ContainsKey(Gid.CrystalMine) Then
+            Dim level As Integer = buildingLevels(Gid.CrystalMine)
+            Dim percentage As Integer = _workloads(Gid.CrystalMine)
+
+            _CrystalProductionPotential = 20 * level * 1.1 ^ level * percentage / 100
+            _CrystalMineEnergyConsumptionPotential = 10 * level * 1.1 ^ level * percentage / 100
             _CrystalMineLevel = level
             _CrystalMineProductionPercentage = percentage
         Else
-            _CrystalProduction = 10
-            _CrystalMineEnergy = 0
+            _CrystalProductionPotential = 0
+            _CrystalMineEnergyConsumptionPotential = 0
             _CrystalMineLevel = 0
             _CrystalMineProductionPercentage = 0
         End If
 
         'deuterium synthesizer
-        If _BuildingLevelMap.ContainsKey(Gid.DeuteriumSynthesizer) AndAlso _productionMap.ContainsKey(Gid.DeuteriumSynthesizer) Then
-            level = _BuildingLevelMap(Gid.DeuteriumSynthesizer)
-            percentage = _productionMap(Gid.DeuteriumSynthesizer)
-            _DeuteriumProduction = 10 * level * 1.1 ^ level * (-0.002 * _HighestTemperature + 1.28) * percentage / 100
-            _DeuteriumSynthesizerEnergy = -20 * level * 1.1 ^ level * percentage / 100
-            _PowerConsumption += -_DeuteriumSynthesizerEnergy
+        If buildingLevels.ContainsKey(Gid.DeuteriumSynthesizer) AndAlso _workloads.ContainsKey(Gid.DeuteriumSynthesizer) Then
+            Dim level As Integer = buildingLevels(Gid.DeuteriumSynthesizer)
+            Dim percentage As Integer = _workloads(Gid.DeuteriumSynthesizer)
+
+            _DeuteriumProductionPotential = 10 * level * 1.1 ^ level * (-0.002 * highestTemperature + 1.28) * percentage / 100
+            _DeuteriumSynthesizerEnergyConsumptionPotential = 20 * level * 1.1 ^ level * percentage / 100
             _DeuteriumSynthesizerLevel = level
             _DeuteriumSynthesizerProductionPercentage = percentage
         Else
-            _DeuteriumProduction = 0
-            _DeuteriumSynthesizerEnergy = 0
+            _DeuteriumProductionPotential = 0
+            _DeuteriumSynthesizerEnergyConsumptionPotential = 0
             _DeuteriumSynthesizerLevel = 0
             _DeuteriumSynthesizerProductionPercentage = 0
         End If
@@ -822,69 +1035,130 @@ Public Class PlanetView
 
         'begin: calculate power generation and deuterium consumption
 
-        _PowerGeneration = 0
-
         'solar planet
-        If _BuildingLevelMap.ContainsKey(Gid.SolarPlant) AndAlso _productionMap.ContainsKey(Gid.SolarPlant) Then
-            level = _BuildingLevelMap(Gid.SolarPlant)
-            percentage = _productionMap(Gid.SolarPlant)
-            _SolarPlanetEnergy = 20 * level * 1.1 ^ level * percentage / 100
-            _PowerGeneration += _SolarPlanetEnergy
+        If buildingLevels.ContainsKey(Gid.SolarPlant) AndAlso _workloads.ContainsKey(Gid.SolarPlant) Then
+            Dim level As Integer = buildingLevels(Gid.SolarPlant)
+            Dim percentage As Integer = _workloads(Gid.SolarPlant)
+
+            _SolarPlanetEnergyGeneration = 20 * level * 1.1 ^ level * percentage / 100
             _SolarPlanetLevel = level
             _SolarPlanetProductionPercentage = percentage
         Else
-            _SolarPlanetEnergy = 0
+            _SolarPlanetEnergyGeneration = 0
             _SolarPlanetLevel = 0
             _SolarPlanetProductionPercentage = 0
         End If
 
         'fusion planet (_DeuteriumProduction is valid)
-        If _BuildingLevelMap.ContainsKey(Gid.FusionReactor) AndAlso _productionMap.ContainsKey(Gid.FusionReactor) Then
-            level = _BuildingLevelMap(Gid.FusionReactor)
-            percentage = _productionMap(Gid.FusionReactor)
-            _FusionReactorEnergy = 50 * level * 1.1 ^ level * percentage / 100
-            _PowerGeneration += _FusionReactorEnergy
-            '_DeuteriumProduction -= 10 * level * 1.1 ^ level * (-0.002 * _HighestTemperature + 1.28) * percentage / 100
-            _DeuteriumConsumption = 10 * level * 1.1 ^ level * (-0.002 * _HighestTemperature + 1.28) * percentage / 100
+        If buildingLevels.ContainsKey(Gid.FusionReactor) AndAlso _workloads.ContainsKey(Gid.FusionReactor) Then
+            Dim level As Integer = buildingLevels(Gid.FusionReactor)
+            Dim percentage As Integer = _workloads(Gid.FusionReactor)
+
+            _FusionReactorEnergyGenerationPotential = 50 * level * 1.1 ^ level * percentage / 100
             _FusionReactorLevel = level
             _FusionReactorProductionPercentage = percentage
+
+            '_DeuteriumProduction -= 10 * level * 1.1 ^ level * (-0.002 * _HighestTemperature + 1.28) * percentage / 100
+            _DeuteriumConsumptionPotential = 10 * level * 1.1 ^ level '* (-0.002 * _HighestTemperature + 1.28) * percentage / 100
         Else
-            _FusionReactorEnergy = 0
-            _DeuteriumConsumption = 0
+            _FusionReactorEnergyGenerationPotential = 0
             _FusionReactorLevel = 0
             _FusionReactorProductionPercentage = 0
+
+            _DeuteriumConsumptionPotential = 0
         End If
 
-        If _StationaryFleetMap Is Nothing Then
+        Dim stationaryFleet As Dictionary(Of Gid, Integer) = _Planet.StationaryFleetMap
+        If stationaryFleet Is Nothing Then
             Exit Sub
         End If
 
         'solar satelites
-        If _StationaryFleetMap.ContainsKey(Gid.SolarSatellite) AndAlso _productionMap.ContainsKey(Gid.SolarSatellite) Then
-            level = _StationaryFleetMap(Gid.SolarSatellite)
-            percentage = _productionMap(Gid.SolarSatellite)
-            _SolarSateliteEnergy = Math.Min(_HighestTemperature / 4 + 20, 50) * level * percentage / 100
-            _PowerGeneration += _SolarSateliteEnergy
+        If stationaryFleet.ContainsKey(Gid.SolarSatellite) AndAlso _workloads.ContainsKey(Gid.SolarSatellite) Then
+            Dim level As Integer = stationaryFleet(Gid.SolarSatellite)
+            Dim percentage As Integer = _workloads(Gid.SolarSatellite)
+
+            _SolarSateliteEnergyGeneration = Min(highestTemperature / 4 + 20, 50) * level * percentage / 100
             _SolarSateliteLevel = level
             _SolarSateliteProductionPercentage = percentage
         Else
-            _SolarSateliteEnergy = 0
+            _SolarSateliteEnergyGeneration = 0
             _SolarSateliteLevel = 0
             _SolarSateliteProductionPercentage = 0
         End If
 
         'end: calculate power generation and deuterium consumption
 
-        'adjust consumption and production
-        If _PowerConsumption > _PowerGeneration Then
-            Dim k As Double = _PowerGeneration / _PowerConsumption
-            _MetalProduction = (_MetalProduction - 20) * k + 20
-            _CrystalProduction = (_CrystalProduction - 10) * k + 10
-            _DeuteriumProduction = _DeuteriumProduction * k - _DeuteriumConsumption
+        _EnergyConsumptionPotentialTotal = _MetalMineEnergyConsumptionPotential + _CrystalMineEnergyConsumptionPotential + _DeuteriumSynthesizerEnergyConsumptionPotential
 
-            _MetalMineEnergy = _MetalMineEnergy * k
-            _CrystalMineEnergy = _CrystalMineEnergy * k
-            _DeuteriumSynthesizerEnergy = _DeuteriumSynthesizerEnergy * k
+        If _DeuteriumConsumptionPotential > _DeuteriumProductionPotential Then
+            _DeuteriumDepletedETA = _Planet.LocalTime + New TimeSpan(0, 0, _Planet.Deuterium / (_DeuteriumConsumptionPotential - _DeuteriumProductionPotential) * 3600)
+        Else
+            _DeuteriumDepletedETA = Date.MaxValue
+        End If
+
+        Dim r As Double = (_SolarSateliteEnergyGeneration + _SolarSateliteEnergyGeneration) / (_EnergyConsumptionPotentialTotal * _DeuteriumConsumptionPotential / _DeuteriumProductionPotential - _FusionReactorEnergyGenerationPotential)
+        _FusionReactorEnergyGeneration_0 = _FusionReactorEnergyGenerationPotential
+        _FusionReactorEnergyGeneration_1 = _FusionReactorEnergyGenerationPotential * r
+
+        _EnergyGenerationPotentialTotal_0 = _SolarPlanetEnergyGeneration + _FusionReactorEnergyGeneration_0 + _SolarSateliteEnergyGeneration
+        _EnergyGenerationPotentialTotal_1 = _SolarPlanetEnergyGeneration + _FusionReactorEnergyGeneration_1 + _SolarSateliteEnergyGeneration
+
+        'adjust consumption and production
+        If _EnergyConsumptionPotentialTotal > _EnergyGenerationPotentialTotal_0 Then
+            Dim k As Double = _EnergyGenerationPotentialTotal_0 / _EnergyConsumptionPotentialTotal
+            _MetalProduction_0 = _MetalProductionPotential * k + 20
+            _CrystalProduction_0 = _CrystalProductionPotential * k + 10
+            _DeuteriumProduction_0 = _DeuteriumProductionPotential * k - _DeuteriumConsumptionPotential
+
+            _MetalMineEnergyConsumption_0 = _MetalMineEnergyConsumptionPotential * k
+            _CrystalMineEnergyConsumption_0 = _CrystalMineEnergyConsumptionPotential * k
+            _DeuteriumSynthesizerEnergyConsumption_0 = _DeuteriumSynthesizerEnergyConsumptionPotential * k
+        Else
+            _MetalProduction_0 = _MetalProductionPotential + 20
+            _CrystalProduction_0 = _CrystalProductionPotential + 10
+            _DeuteriumProduction_0 = _DeuteriumProductionPotential - _DeuteriumConsumptionPotential
+
+            _MetalMineEnergyConsumption_0 = _MetalMineEnergyConsumptionPotential
+            _CrystalMineEnergyConsumption_0 = _CrystalMineEnergyConsumptionPotential
+            _DeuteriumSynthesizerEnergyConsumption_0 = _DeuteriumSynthesizerEnergyConsumptionPotential
+        End If
+        If _EnergyConsumptionPotentialTotal > _EnergyGenerationPotentialTotal_1 Then
+            Dim k As Double = _EnergyGenerationPotentialTotal_1 / _EnergyConsumptionPotentialTotal
+            _MetalProduction_1 = _MetalProductionPotential * k + 20
+            _CrystalProduction_1 = _CrystalProductionPotential * k + 10
+            _DeuteriumProduction_1 = _DeuteriumProductionPotential * k - _DeuteriumConsumptionPotential
+
+            _MetalMineEnergyConsumption_1 = _MetalMineEnergyConsumptionPotential * k
+            _CrystalMineEnergyConsumption_1 = _CrystalMineEnergyConsumptionPotential * k
+            _DeuteriumSynthesizerEnergyConsumption_1 = _DeuteriumSynthesizerEnergyConsumptionPotential * k
+        Else
+            _MetalProduction_1 = _MetalProductionPotential + 20
+            _CrystalProduction_1 = _CrystalProductionPotential + 10
+            _DeuteriumProduction_1 = _DeuteriumProductionPotential - _DeuteriumConsumptionPotential
+
+            _MetalMineEnergyConsumption_1 = _MetalMineEnergyConsumptionPotential
+            _CrystalMineEnergyConsumption_1 = _CrystalMineEnergyConsumptionPotential
+            _DeuteriumSynthesizerEnergyConsumption_1 = _DeuteriumSynthesizerEnergyConsumptionPotential
+        End If
+
+        _EnergyConsumptionTotal_0 = _MetalMineEnergyConsumption_0 + _CrystalMineEnergyConsumption_0 + _DeuteriumSynthesizerEnergyConsumption_0
+        _EnergyConsumptionTotal_1 = _MetalMineEnergyConsumption_1 + _CrystalMineEnergyConsumption_1 + _DeuteriumSynthesizerEnergyConsumption_1
+
+        If _Metal_D < _MetalCapacity Then
+            _MetalOverflowETA = _Planet.LocalTime + New TimeSpan(0, 0, 3600 * (_Metal_D - _Planet.Metal) / _MetalProduction_0) + New TimeSpan(0, 0, 3600 * (1000 * _MetalCapacity - _Metal_D) / _MetalProduction_1)
+        Else
+            _MetalOverflowETA = _Planet.LocalTime + New TimeSpan(0, 0, 3600 * (1000 * _MetalCapacity - _Planet.Metal) / _MetalProduction_0)
+        End If
+        If _Crystal_D < _CrystalCapacity Then
+            _CrystalOverflowETA = _Planet.LocalTime + New TimeSpan(0, 0, 3600 * (_Crystal_D - _Planet.Crystal) / _CrystalProduction_0) + New TimeSpan(0, 0, 3600 * (1000 * _CrystalCapacity - _Crystal_D) / _CrystalProduction_1)
+        Else
+            _CrystalOverflowETA = _Planet.LocalTime + New TimeSpan(0, 0, 3600 * (1000 * _CrystalCapacity - _Planet.Crystal) / _CrystalProduction_0)
+        End If
+        If _Deuterium_D < _DeuteriumCapacity Then
+            _DeuteriumOverflowETA = _Planet.LocalTime + New TimeSpan(0, 0, 3600 * (_Deuterium_D - _Planet.Deuterium) / _DeuteriumProduction_0) + New TimeSpan(0, 0, 3600 * (1000 * _DeuteriumCapacity - _Deuterium_D) / _DeuteriumProduction_1)
+        Else
+            _DeuteriumOverflowETA = _Planet.LocalTime + New TimeSpan(0, 0, 3600 * (1000 * _DeuteriumCapacity - _Planet.Deuterium) / _DeuteriumProduction_0)
         End If
     End Sub
 
@@ -930,55 +1204,86 @@ Public Class PlanetView
 
     Private Function GetTotalProduction() As Double
 
-        Return _MetalProduction + _CrystalProduction + _DeuteriumProduction
+        Return _MetalProduction_0 + _CrystalProduction_0 + _DeuteriumProduction_0
 
     End Function
 
-    Private Function EstimateTime(ByVal stock As Integer, ByVal growth As Double, ByVal capacity As Double) As String
+    'Private Function EstimateTime(ByVal stock As Integer, ByVal growth As Double, ByVal capacity As Double) As String
 
-        If Double.IsNaN(growth) OrElse Double.IsNaN(capacity) Then
-            EstimateTime = "n/a"
-        ElseIf growth <= 0 Then
-            EstimateTime = "never"
-        Else
-            Dim w As Single = (capacity - stock) / growth / 24 / 7
-            Dim wi As Integer = Floor(w)
-            If wi > 0 Then
-                Return "more than " & wi & " week(s)"
-            End If
+    '    If Double.IsNaN(growth) OrElse Double.IsNaN(capacity) Then
+    '        EstimateTime = "n/a"
+    '    ElseIf growth <= 0 Then
+    '        EstimateTime = "never"
+    '    Else
+    '        Dim w As Single = (capacity - stock) / growth / 24 / 7
+    '        Dim wi As Integer = Floor(w)
+    '        If wi > 0 Then
+    '            Return "more than " & wi & " week(s)"
+    '        End If
 
-            Dim d As Single = (w - wi) * 7
-            Dim di As Integer = Floor(d)
-            If di > 0 Then
-                Return "more than " & di & " day(s)"
-            End If
+    '        Dim d As Single = (w - wi) * 7
+    '        Dim di As Integer = Floor(d)
+    '        If di > 0 Then
+    '            Return "more than " & di & " day(s)"
+    '        End If
 
-            Dim h As Single = (d - di) * 24
-            Dim hi As Integer = Floor(h)
-            Dim m As Single = (h - hi) * 60
-            Dim mi As Integer = Floor(m)
-            Dim s As Single = (m - mi) * 60
-            Dim si As Integer = Floor(s)
+    '        Dim h As Single = (d - di) * 24
+    '        Dim hi As Integer = Floor(h)
+    '        Dim m As Single = (h - hi) * 60
+    '        Dim mi As Integer = Floor(m)
+    '        Dim s As Single = (m - mi) * 60
+    '        Dim si As Integer = Floor(s)
 
-            EstimateTime = hi & "h " & mi & "m " & si & "s"
-        End If
-    End Function
+    '        EstimateTime = hi & "h " & mi & "m " & si & "s"
+    '    End If
+    'End Function
 
     Private ReadOnly Property CurrentMetal() As Integer
         Get
-            Return Min(_Planet.Metal + _MetalProduction * (Now - _Planet.LocalTime).TotalHours, _MetalCapacity * 1000)
+            Dim p As Integer
+            If NotDeuteriumDepleted Then
+                p = Fix(_Planet.Metal + _MetalProduction_0 * (_LocalTime - _Planet.LocalTime).TotalHours)
+            Else
+                p = Fix(_Metal_D + _MetalProduction_1 * (_LocalTime - _DeuteriumDepletedETA).TotalHours)
+            End If
+            Return Min(p, _MetalCapacity * 1000)
         End Get
     End Property
 
     Private ReadOnly Property CurrentCrystal() As Integer
         Get
-            Return Min(_Planet.Crystal + _CrystalProduction * (Now - _Planet.LocalTime).TotalHours, _CrystalCapacity * 1000)
+            Dim p As Integer
+            If NotDeuteriumDepleted Then
+                p = Fix(_Planet.Crystal + _CrystalProduction_0 * (_LocalTime - _Planet.LocalTime).TotalHours)
+            Else
+                p = Fix(_Crystal_D + _CrystalProduction_1 * (_LocalTime - _DeuteriumDepletedETA).TotalHours)
+            End If
+            Return Min(p, _CrystalCapacity * 1000)
         End Get
     End Property
 
     Private ReadOnly Property CurrentDeuterium() As Integer
         Get
-            Return Min(Max(_Planet.Deuterium + _DeuteriumProduction * (Now - _Planet.LocalTime).TotalHours, 0), _DeuteriumCapacity * 1000)
+            Dim p As Integer
+            If NotDeuteriumDepleted Then
+                p = Fix(_Planet.Deuterium + _DeuteriumProduction_0 * (_LocalTime - _Planet.LocalTime).TotalHours)
+            Else
+                p = Fix(_Deuterium_D + _DeuteriumProduction_1 * (_LocalTime - _DeuteriumDepletedETA).TotalHours)
+            End If
+            Return Min(Max(p, 0), _DeuteriumCapacity * 1000)
         End Get
     End Property
+
+    Private ReadOnly Property NotDeuteriumDepleted() As Boolean
+        Get
+            Return _LocalTime < _DeuteriumDepletedETA
+        End Get
+    End Property
+
+    <DataObjectMethod(DataObjectMethodType.Select, True)> _
+    Public Function GetUpgradeCommands() As ICollection(Of Command.IUpgradeCommand)
+
+        Return _Planet.UpgradeCommandMap.Values
+
+    End Function
 End Class

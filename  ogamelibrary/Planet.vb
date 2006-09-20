@@ -71,6 +71,8 @@ Public Class Planet
     ''' <remarks></remarks>
     Private ReadOnly _OrdinalNumber As Integer
 
+#End Region
+
 #Region "informational command variables"
 
     Private ReadOnly _OverviewCommand As Command.OverviewCommand
@@ -91,7 +93,7 @@ Public Class Planet
     'Private _CancelConstructionCommand As Command.CancelConstructionCommand
     'Private _CancelResearchCommand As Command.CancelResearchCommand
 
-#End Region
+    Private _UpgradeCommandDictionary As Dictionary(Of Gid, Command.IUpgradeCommand)
 
 #End Region
 
@@ -155,8 +157,16 @@ Public Class Planet
     ''' <remarks></remarks>
     Private _StationaryFleetMap As Dictionary(Of Gid, Integer)
 
+    ''' <summary>
+    ''' obsolete
+    ''' </summary>
+    ''' <remarks></remarks>
     Private _ConstructionTimeLeft As TimeSpan
 
+    ''' <summary>
+    ''' obsolete
+    ''' </summary>
+    ''' <remarks></remarks>
     Private _ResearchTimeLeft As TimeSpan
 
     Private _ConstructionSecondsLeft As Integer
@@ -220,6 +230,8 @@ Public Class Planet
         AddHandler _ResearchLabCommand.Complete, AddressOf ResearchLabCommand_Complete
         AddHandler _FleetCommand.Complete, AddressOf FleetCommand_Complete
         AddHandler _DefenseCommand.Complete, AddressOf DefenseCommand_Complete
+
+        _UpgradeCommandDictionary = New Dictionary(Of Gid, Command.IUpgradeCommand)
 
     End Sub
 
@@ -437,6 +449,12 @@ Public Class Planet
         End Get
     End Property
 
+    Public ReadOnly Property UpgradeCommandMap() As Dictionary(Of Gid, Command.IUpgradeCommand)
+        Get
+            Return _UpgradeCommandDictionary
+        End Get
+    End Property
+
     Public ReadOnly Property Activity() As String
         Get
             Return _Activity
@@ -513,6 +531,28 @@ Public Class Planet
             _Rank = .Rank
             _EmpireCount = .EmpireCount
         End With
+    End Sub
+
+    Private Sub AddConstructionCommand(ByVal gid As Gid, ByVal roboticsFactoryLevel As Integer, ByVal naniteFactoryLevel As Integer)
+
+        Dim level As Integer = GetBuildingLevel(gid)
+        Dim cmd As Command.ConstructCommand = New Command.ConstructCommand(_ServerName, _Id, gid, level, roboticsFactoryLevel, naniteFactoryLevel, AddressOf ValidateCommandEventHandler)
+        AddHandler cmd.Complete, AddressOf BuildingsCommand_Complete
+        AddHandler cmd.Executing, AddressOf ExecutingEventHandler
+
+        _UpgradeCommandDictionary.Add(gid, cmd)
+
+    End Sub
+
+    Private Sub AddResearchCommand(ByVal gid As Gid, ByVal researchLabLevel As Integer)
+
+        Dim level As Integer = GetBuildingLevel(gid)
+        Dim cmd As Command.ResearchCommand = New Command.ResearchCommand(_ServerName, _Id, gid, level, researchLabLevel, AddressOf ValidateCommandEventHandler)
+        AddHandler cmd.Complete, AddressOf ResearchLabCommand_Complete
+        AddHandler cmd.Executing, AddressOf ExecutingEventHandler
+
+        _UpgradeCommandDictionary.Add(gid, cmd)
+
     End Sub
 
     Private Function GetBuildingLevel(ByVal gid As Gid) As Integer
@@ -636,103 +676,6 @@ Public Class Planet
     End Function
 #End Region
 
-    Public Sub BeginLoadOverviewPage()
-
-        RaiseEvent EnqueueCommand(_OverviewCommand)
-
-    End Sub
-
-    Public Sub BeginLoadOtherPages()
-
-        RaiseEvent EnqueueCommand(_BuildingsCommand)
-        RaiseEvent EnqueueCommand(_ResourcesCommand)
-        RaiseEvent EnqueueCommand(_ResearchLabCommand)
-        RaiseEvent EnqueueCommand(_FleetCommand)
-        RaiseEvent EnqueueCommand(_DefenseCommand)
-        'With _CommandQueue
-        '    .Enqueue(_ConstructionCenterCommand)
-        '    .Enqueue(_ResourcesCommand)
-        '    .Enqueue(_ResearchLabCommand)
-        '    .Enqueue(_FleetCommand)
-        '    .Enqueue(_DefenseCommand)
-        'End With
-    End Sub
-
-    Public Sub BeginExecute(ByVal cmd As Command.CommandBase)
-
-        RaiseEvent EnqueueCommand(cmd)
-
-    End Sub
-
-    ''' <summary>
-    ''' 
-    ''' </summary>
-    ''' <param name="gid"></param>
-    ''' <returns></returns>
-    ''' <remarks>Returns Nothing before buildings page downloaded.</remarks>
-    Public Function CreateConstructCommand(ByVal gid As Gid) As Command.ConstructCommand
-
-        Dim cmd As Command.ConstructCommand
-
-        If _BuildingLevelMap IsNot Nothing Then
-            Dim currentLevel As Integer = GetBuildingLevel(gid)
-            Dim roboticsFactoryLevel As Integer = GetBuildingLevel(Ogame.Gid.RoboticsFactory)
-            Dim naniteFactoryLevel As Integer = GetBuildingLevel(Ogame.Gid.NaniteFactory)
-
-            cmd = New Command.ConstructCommand(_ServerName, _Id, gid, currentLevel, roboticsFactoryLevel, naniteFactoryLevel, AddressOf ValidateCommandEventHandler)
-            AddHandler cmd.Complete, AddressOf BuildingsCommand_Complete
-        Else
-            cmd = Nothing
-        End If
-
-        Return cmd
-
-    End Function
-
-    ''' <summary>
-    ''' 
-    ''' </summary>
-    ''' <param name="gid"></param>
-    ''' <returns></returns>
-    ''' <remarks>Returns Nothing before buildings page downloaded, or building level is 0.</remarks>
-    Public Function CreateDestroyCommand(ByVal gid As Gid) As Command.DestroyCommand
-
-        Dim cmd As Command.DestroyCommand
-
-        If _BuildingLevelMap IsNot Nothing Then
-            Dim currentLevel As Integer = GetBuildingLevel(gid)
-            If currentLevel > 0 Then
-                Dim roboticsFactoryLevel As Integer = GetBuildingLevel(Ogame.Gid.RoboticsFactory)
-                Dim naniteFactoryLevel As Integer = GetBuildingLevel(Ogame.Gid.NaniteFactory)
-
-                cmd = New Command.DestroyCommand(_ServerName, _Id, gid, currentLevel, roboticsFactoryLevel, naniteFactoryLevel, AddressOf ValidateCommandEventHandler)
-                AddHandler cmd.Complete, AddressOf BuildingsCommand_Complete
-            Else
-                cmd = Nothing
-            End If
-        Else
-            cmd = Nothing
-        End If
-
-        Return cmd
-
-    End Function
-
-    Public Function CreateCancelConstructCommand(ByVal gid As Gid) As Command.CancelConstructionCommand
-
-        Dim cmd As Command.CancelConstructionCommand
-
-        If _BuildingLevelMap IsNot Nothing Then
-            cmd = New Command.CancelConstructionCommand(_ServerName, _Id, gid)
-            AddHandler cmd.Complete, AddressOf BuildingsCommand_Complete
-        Else
-            cmd = Nothing
-        End If
-
-        Return cmd
-
-    End Function
-
 #Region "command completion event handlers"
 
     Private Sub OverviewCommand_Complete(ByVal page As Page.OverviewPage)
@@ -749,6 +692,30 @@ Public Class Planet
             _BuildingLevelMap = page.LevelMap
             _ConstructionTimeLeft = page.TimeLeft
             _ConstructionSecondsLeft = page.SecondsLeft
+
+            'begin: load construction commands
+
+            Dim roboticsFactoryLevel As Integer = GetBuildingLevel(Gid.RoboticsFactory)
+            Dim naniteFactoryLevel As Integer = GetBuildingLevel(Gid.NaniteFactory)
+
+            AddConstructionCommand(Gid.MetalMine, roboticsFactoryLevel, naniteFactoryLevel)
+            AddConstructionCommand(Gid.CrystalMine, roboticsFactoryLevel, naniteFactoryLevel)
+            AddConstructionCommand(Gid.DeuteriumSynthesizer, roboticsFactoryLevel, naniteFactoryLevel)
+            AddConstructionCommand(Gid.SolarPlant, roboticsFactoryLevel, naniteFactoryLevel)
+            AddConstructionCommand(Gid.FusionReactor, roboticsFactoryLevel, naniteFactoryLevel)
+            AddConstructionCommand(Gid.RoboticsFactory, roboticsFactoryLevel, naniteFactoryLevel)
+            'AddConstructionCommand(Gid.NaniteFactory, roboticsFactoryLevel, naniteFactoryLevel)
+            AddConstructionCommand(Gid.Shipyard, roboticsFactoryLevel, naniteFactoryLevel)
+            AddConstructionCommand(Gid.MetalStorage, roboticsFactoryLevel, naniteFactoryLevel)
+            AddConstructionCommand(Gid.CrystalStorage, roboticsFactoryLevel, naniteFactoryLevel)
+            AddConstructionCommand(Gid.DeuteriumTank, roboticsFactoryLevel, naniteFactoryLevel)
+            AddConstructionCommand(Gid.ResearchLab, roboticsFactoryLevel, naniteFactoryLevel)
+            'AddConstructionCommand(Gid.Terraformer, roboticsFactoryLevel, naniteFactoryLevel)
+            'AddConstructionCommand(Gid.AllianceDepot, roboticsFactoryLevel, naniteFactoryLevel)
+            AddConstructionCommand(Gid.MissileSilo, roboticsFactoryLevel, naniteFactoryLevel)
+
+            'end: load construction commands
+
             RaiseEvent Changed()
         End If
     End Sub
@@ -767,6 +734,29 @@ Public Class Planet
             _ResearchLevelMap = page.LevelMap
             _ResearchTimeLeft = page.TimeLeft
             _ResearchSecondsLeft = page.SecondsLeft
+
+            'begin: load research commands
+
+            Dim researchLabLevel As Integer = GetBuildingLevel(Gid.ResearchLab)
+
+            AddResearchCommand(Gid.EspionageTechnology, researchLabLevel)
+            AddResearchCommand(Gid.ComputerTechnology, researchLabLevel)
+            AddResearchCommand(Gid.WeaponsTechnology, researchLabLevel)
+            AddResearchCommand(Gid.ShieldingTechnology, researchLabLevel)
+            AddResearchCommand(Gid.ArmourTechnology, researchLabLevel)
+            AddResearchCommand(Gid.EnergyTechnology, researchLabLevel)
+            AddResearchCommand(Gid.HyperspaceTechnology, researchLabLevel)
+            AddResearchCommand(Gid.CombustionDrive, researchLabLevel)
+            AddResearchCommand(Gid.ImpulseDrive, researchLabLevel)
+            AddResearchCommand(Gid.HyperspaceDrive, researchLabLevel)
+            AddResearchCommand(Gid.LaserTechnology, researchLabLevel)
+            AddResearchCommand(Gid.IonTechnology, researchLabLevel)
+            'AddResearchCommand(Gid.PlasmaTechnology, researchLabLevel)
+            'AddResearchCommand(Gid.IntergalacticResearchNetwork, researchLabLevel)
+            'AddResearchCommand(Gid.GravitonTechnology, researchLabLevel)
+
+            'end: load research commands
+
             RaiseEvent ResearchLabUpdated(_ResearchLevelMap)
             RaiseEvent Changed()
         End If
@@ -799,7 +789,7 @@ Public Class Planet
             valid = False
         Else
             For Each level As KeyValuePair(Of Gid, Integer) In dependencies
-                If Not ValidateLevel(BuildingLevelMap, level) AndAlso Not ValidateLevel(ResearchLevelMap, level) Then
+                If Not ValidateLevel(_BuildingLevelMap, level) AndAlso Not ValidateLevel(_ResearchLevelMap, level) Then
                     valid = False
                     Exit For
                 End If
@@ -809,5 +799,109 @@ Public Class Planet
         Return valid
 
     End Function
+
+    Private Sub ExecutingEventHandler(ByVal cmd As Command.CommandBase)
+
+        RaiseEvent EnqueueCommand(cmd)
+
+    End Sub
 #End Region
+
+    Public Sub BeginLoadOverviewPage()
+
+        RaiseEvent EnqueueCommand(_OverviewCommand)
+
+    End Sub
+
+    Public Sub BeginLoadOtherPages()
+
+        RaiseEvent EnqueueCommand(_BuildingsCommand)
+        RaiseEvent EnqueueCommand(_ResourcesCommand)
+        RaiseEvent EnqueueCommand(_ResearchLabCommand)
+        RaiseEvent EnqueueCommand(_FleetCommand)
+        RaiseEvent EnqueueCommand(_DefenseCommand)
+        'With _CommandQueue
+        '    .Enqueue(_ConstructionCenterCommand)
+        '    .Enqueue(_ResourcesCommand)
+        '    .Enqueue(_ResearchLabCommand)
+        '    .Enqueue(_FleetCommand)
+        '    .Enqueue(_DefenseCommand)
+        'End With
+    End Sub
+
+    ''' <summary>
+    ''' not used
+    ''' </summary>
+    ''' <param name="gid"></param>
+    ''' <returns></returns>
+    ''' <remarks>Returns Nothing before buildings page downloaded.</remarks>
+    Public Function CreateConstructCommand(ByVal gid As Gid) As Command.ConstructCommand
+
+        Dim cmd As Command.ConstructCommand
+
+        If _BuildingLevelMap IsNot Nothing Then
+            Dim currentLevel As Integer = GetBuildingLevel(gid)
+            Dim roboticsFactoryLevel As Integer = GetBuildingLevel(Ogame.Gid.RoboticsFactory)
+            Dim naniteFactoryLevel As Integer = GetBuildingLevel(Ogame.Gid.NaniteFactory)
+
+            cmd = New Command.ConstructCommand(_ServerName, _Id, gid, currentLevel, roboticsFactoryLevel, naniteFactoryLevel, AddressOf ValidateCommandEventHandler)
+            AddHandler cmd.Complete, AddressOf BuildingsCommand_Complete
+            AddHandler cmd.Executing, AddressOf ExecutingEventHandler
+        Else
+            cmd = Nothing
+        End If
+
+        Return cmd
+
+    End Function
+
+    ''' <summary>
+    ''' not used
+    ''' </summary>
+    ''' <param name="gid"></param>
+    ''' <returns></returns>
+    ''' <remarks>Returns Nothing before buildings page downloaded, or building level is 0.</remarks>
+    Public Function CreateDestroyCommand(ByVal gid As Gid) As Command.DestroyCommand
+
+        Dim cmd As Command.DestroyCommand
+
+        If _BuildingLevelMap IsNot Nothing Then
+            Dim currentLevel As Integer = GetBuildingLevel(gid)
+            If currentLevel > 0 Then
+                Dim roboticsFactoryLevel As Integer = GetBuildingLevel(Ogame.Gid.RoboticsFactory)
+                Dim naniteFactoryLevel As Integer = GetBuildingLevel(Ogame.Gid.NaniteFactory)
+
+                cmd = New Command.DestroyCommand(_ServerName, _Id, gid, currentLevel, roboticsFactoryLevel, naniteFactoryLevel, AddressOf ValidateCommandEventHandler)
+                AddHandler cmd.Complete, AddressOf BuildingsCommand_Complete
+            Else
+                cmd = Nothing
+            End If
+        Else
+            cmd = Nothing
+        End If
+
+        Return cmd
+
+    End Function
+
+    ''' <summary>
+    ''' not used
+    ''' </summary>
+    ''' <param name="gid"></param>
+    ''' <returns></returns>
+    ''' <remarks></remarks>
+    Public Function CreateCancelConstructCommand(ByVal gid As Gid) As Command.CancelConstructionCommand
+
+        Dim cmd As Command.CancelConstructionCommand
+
+        If _BuildingLevelMap IsNot Nothing Then
+            cmd = New Command.CancelConstructionCommand(_ServerName, _Id, gid)
+            AddHandler cmd.Complete, AddressOf BuildingsCommand_Complete
+        Else
+            cmd = Nothing
+        End If
+
+        Return cmd
+
+    End Function
 End Class
