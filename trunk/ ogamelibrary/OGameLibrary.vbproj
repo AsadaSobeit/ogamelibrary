@@ -58,6 +58,7 @@
     <Compile Include="command\BuildingsCommand.vb">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="command\IUpgradeCommand.vb" />
     <Compile Include="InvalidSessionException.vb" />
     <Compile Include="InvalidCommandException.vb" />
     <Compile Include="command\ResourcesCommand.vb" />

@@ -125,7 +125,10 @@ Public Class Empire
     <DataObjectMethod(DataObjectMethodType.Select, True)> _
     Public Function GetPlanetView(ByVal planetId As String) As PlanetView
 
-        Return _PlanetViewDictionary(planetId)
+        Dim v As PlanetView = _PlanetViewDictionary(planetId)
+        v.LocalTime = Now
+
+        Return v
 
     End Function
 

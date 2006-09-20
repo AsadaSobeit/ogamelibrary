@@ -5,11 +5,12 @@ Namespace Command
 
     Public Class ConstructCommand
         Inherits BuildingsCommand
+        Implements IUpgradeCommand
 
         Private Const URI_FORMAT As String = "http://{{0}}/game/b_building.php?session={{1}}&bau={0}"
         Private Const PLANET_URI_FORMAT As String = URI_FORMAT & "&cp={{2}}"
 
-        Private ReadOnly _GID As Integer
+        Private ReadOnly _GID As Gid
         Private ReadOnly _Level As Integer
         Private ReadOnly _RoboticsFactoryLevel As Integer
         Private ReadOnly _NaniteFactoryLevel As Integer
@@ -24,7 +25,9 @@ Namespace Command
 
         Private ReadOnly _Validator As Planet.ValidateCommand
 
-        Public Sub New(ByVal serverName As String, ByVal planetId As Integer, ByVal gid As Integer, ByVal currentLevel As Integer, ByVal roboticsFactoryLevel As Integer, ByVal naniteFactoryLevel As Integer, ByVal validator As Planet.ValidateCommand)
+        Public Event Executing(ByVal cmd As CommandBase)
+
+        Public Sub New(ByVal serverName As String, ByVal planetId As Integer, ByVal gid As Gid, ByVal currentLevel As Integer, ByVal roboticsFactoryLevel As Integer, ByVal naniteFactoryLevel As Integer, ByVal validator As Planet.ValidateCommand)
 
             MyBase.New(serverName, planetId)
 
@@ -101,9 +104,10 @@ Namespace Command
             End Select
 
             Dim hour As Double = (_MetalCost + _CrystalCost) / 2500 / (roboticsFactoryLevel + 1) * 0.5 ^ naniteFactoryLevel
-            Dim minute As Double = (hour - Floor(hour)) * 60
-            Dim second As Double = (minute - Floor(minute)) * 60
-            _Time = New TimeSpan(Floor(hour), Floor(minute), Floor(second))
+            'Dim minute As Double = (hour - Floor(hour)) * 60
+            'Dim second As Double = (minute - Floor(minute)) * 60
+            '_Time = New TimeSpan(Floor(hour), Floor(minute), Floor(second))
+            _Time = New TimeSpan(0, 0, 3600 * hour)
 
             _Validator = validator
 
@@ -121,17 +125,59 @@ Namespace Command
             End Get
         End Property
 
-        Public ReadOnly Property Gid() As Integer
+        Public ReadOnly Property Gid() As Gid Implements IUpgradeCommand.Gid
             Get
                 Return _GID
             End Get
         End Property
 
-        Public ReadOnly Property Level() As Integer
+        Public ReadOnly Property Level() As Integer Implements IUpgradeCommand.Level
             Get
                 Return _Level
             End Get
         End Property
+
+        Public ReadOnly Property DependencyDictionary() As Dictionary(Of Ogame.Gid, Integer) Implements IUpgradeCommand.DependencyDictionary
+            Get
+                Return _Dependencies
+            End Get
+        End Property
+
+        Public ReadOnly Property MetalCost() As Integer Implements IUpgradeCommand.MetalCost
+            Get
+                Return _MetalCost
+            End Get
+        End Property
+
+        Public ReadOnly Property CrystalCost() As Integer Implements IUpgradeCommand.CrystalCost
+            Get
+                Return _CrystalCost
+            End Get
+        End Property
+
+        Public ReadOnly Property DeuteriumCost() As Integer Implements IUpgradeCommand.DeuteriumCost
+            Get
+                Return _DeuteriumCost
+            End Get
+        End Property
+
+        Public ReadOnly Property Time() As TimeSpan Implements IUpgradeCommand.Time
+            Get
+                Return _Time
+            End Get
+        End Property
+
+        Public ReadOnly Property Ready() As Boolean Implements IUpgradeCommand.Ready
+            Get
+                Return _Validator.Invoke(_MetalCost, _CrystalCost, _DeuteriumCost, _Dependencies)
+            End Get
+        End Property
+
+        Public Sub BeginExecute() Implements IUpgradeCommand.BeginExecute
+
+            RaiseEvent Executing(Me)
+
+        End Sub
 
         Public ReadOnly Property RoboticsFactoryLevel() As Integer
             Get
@@ -142,42 +188,6 @@ Namespace Command
         Public ReadOnly Property NaniteFactoryLevel() As Integer
             Get
                 Return _NaniteFactoryLevel
-            End Get
-        End Property
-
-        Public ReadOnly Property DependencyDictionary() As Dictionary(Of Ogame.Gid, Integer)
-            Get
-                Return _Dependencies
-            End Get
-        End Property
-
-        Public ReadOnly Property MetalCost() As Integer
-            Get
-                Return _MetalCost
-            End Get
-        End Property
-
-        Public ReadOnly Property CrystalCost() As Integer
-            Get
-                Return _CrystalCost
-            End Get
-        End Property
-
-        Public ReadOnly Property DeuteriumCost() As Integer
-            Get
-                Return _DeuteriumCost
-            End Get
-        End Property
-
-        Public ReadOnly Property Time() As TimeSpan
-            Get
-                Return _Time
-            End Get
-        End Property
-
-        Public ReadOnly Property Ready() As Boolean
-            Get
-                Return _Validator.Invoke(_MetalCost, _CrystalCost, _DeuteriumCost, _Dependencies)
             End Get
         End Property
     End Class

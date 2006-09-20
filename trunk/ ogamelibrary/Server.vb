@@ -26,6 +26,7 @@ Public Class Server
         _Online = False
 
         _CommandTimer = New Timers.Timer(MINIMUM_INTERVAL)
+        _CommandTimer.AutoReset = False
 
     End Sub
 
@@ -82,54 +83,84 @@ Public Class Server
 
         '0 - free, 1 - busy (which is skipped)
         Static syncPoint As Integer = 0
+        Try
+            'Dim sync As Integer = Threading.Interlocked.CompareExchange(syncPoint, 1, 0)
+            If Threading.Interlocked.CompareExchange(syncPoint, 1, 0) = 0 Then
+                Debug.Print(Now & " [" & Threading.Thread.CurrentThread.Name & "] entering timed procedure")
+                If _EmpireQueue.Count > 0 Then
+                    If _CurrentEmpire Is Nothing OrElse _CurrentEmpire.CommandQueue.Count = 0 OrElse Now - _StartTime > TIME_SLICE Then
+                        Do
+                            Dim username As String = _EmpireQueue.Dequeue()
+                            _EmpireQueue.Enqueue(username)
 
-        Dim sync As Integer = Threading.Interlocked.CompareExchange(syncPoint, 1, 0)
-        If sync = 0 Then
-            If _EmpireQueue.Count > 0 Then
-                If _CurrentEmpire Is Nothing OrElse _CurrentEmpire.CommandQueue.Count = 0 OrElse Now - _StartTime > TIME_SLICE Then
-                    Do
-                        Dim username As String = _EmpireQueue.Dequeue()
-                        _EmpireQueue.Enqueue(username)
+                            _CurrentEmpire = _EmpireDictionary(username)
+                            _StartTime = Now
 
-                        _CurrentEmpire = _EmpireDictionary(username)
-                        _StartTime = Now
+                            If username = _CurrentUsername Then
+                                Exit Do
+                            End If
+                            _CurrentUsername = username
 
-                        If username = _CurrentUsername Then
-                            Exit Do
-                        End If
-                        _CurrentUsername = username
-
-                        If _CurrentEmpire.CommandQueue.Count > 0 Then
-                            Exit Do
-                        End If
-                    Loop
-                End If
-
-                'todo: execute commands
-                With _CurrentEmpire
-                    If .CommandQueue.Count > 0 Then
-                        Try
-                            Dim cmd As Command.CommandBase = .CommandQueue.Peek()
-                            cmd.Execute(.SessionId)
-                            .CommandQueue.Dequeue()
-                        Catch ex As InvalidSessionException
-                            .Login()
-                        Catch ex As InvalidCommandException
-                            'try
-                            Debug.Print(ex.Message)
-                        End Try
+                            If _CurrentEmpire.CommandQueue.Count > 0 Then
+                                Exit Do
+                            End If
+                        Loop
                     End If
-                End With
 
-                _CommandTimer.Interval = RandomInterval()
+                    'todo: execute commands
+                    With _CurrentEmpire
+                        If .CommandQueue.Count > 0 Then
+                            Dim cmd As Command.CommandBase = .CommandQueue.Peek()
+                            If cmd.State = Command.CommandBase.CommandState.Failed Then
+                                'retry
+                                cmd.Execute(.SessionId)
+                                If cmd.State = Command.CommandBase.CommandState.Done Then
+                                    .CommandQueue.Dequeue()
+                                ElseIf TypeOf cmd.LastException Is InvalidSessionException Then
+                                    .Login()
+                                    'retry
+                                Else
+                                    'skip
+                                    While .CommandQueue.Count > 0
+                                        cmd = .CommandQueue.Dequeue()
+                                        cmd.Skip()
+                                    End While
+                                End If
+                            Else
+                                cmd.Execute(.SessionId)
+                                If cmd.State = Command.CommandBase.CommandState.Done Then
+                                    .CommandQueue.Dequeue()
+                                ElseIf TypeOf cmd.LastException Is InvalidSessionException Then
+                                    .Login()
+                                    'retry
+                                ElseIf TypeOf cmd.LastException Is InvalidCommandException Then
+                                    'retry
+                                    Debug.Print(cmd.ToString())
+                                Else
+                                    'skip
+                                    While .CommandQueue.Count > 0
+                                        cmd = .CommandQueue.Dequeue()
+                                        cmd.Skip()
+                                    End While
+                                End If
+                            End If
+                        End If
+                    End With
+
+                    _CommandTimer.Interval = RandomInterval()
+                    _CommandTimer.Enabled = True
+                    'Else
+                    '    _CommandTimer.Enabled = False
+                End If
+                Debug.Print(Now & " [" & Threading.Thread.CurrentThread.Name & "] exiting timed procedure")
             Else
-                _CommandTimer.Enabled = False
+                Debug.Print(Now & " [" & Threading.Thread.CurrentThread.Name & "] skipping timed procedure")
+                _CommandTimer.Interval = MINIMUM_INTERVAL
+                _CommandTimer.Enabled = True
             End If
-
+        Finally
             syncPoint = 0
-        Else
-            _CommandTimer.Interval = MINIMUM_INTERVAL
-        End If
+        End Try
     End Sub
 
     Private Function RandomInterval() As Double
