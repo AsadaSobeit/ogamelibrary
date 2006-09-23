@@ -1091,15 +1091,40 @@ Public Class PlanetView
 
         _EnergyConsumptionPotentialTotal = _MetalMineEnergyConsumptionPotential + _CrystalMineEnergyConsumptionPotential + _DeuteriumSynthesizerEnergyConsumptionPotential
 
+        Dim hoursToDeuteriumDeplete As Double
         If _DeuteriumConsumptionPotential > _DeuteriumProductionPotential Then
-            _DeuteriumDepletedETA = _Planet.LocalTime + New TimeSpan(0, 0, _Planet.Deuterium / (_DeuteriumConsumptionPotential - _DeuteriumProductionPotential) * 3600)
+            hoursToDeuteriumDeplete = _Planet.Deuterium / (_DeuteriumConsumptionPotential - _DeuteriumProductionPotential)
+            _DeuteriumDepletedETA = _Planet.LocalTime + New TimeSpan(0, 0, hoursToDeuteriumDeplete * 3600)
+
+            _Metal_D = _Planet.Metal + _MetalProduction_0 * hoursToDeuteriumDeplete
+            _Crystal_D = _Planet.Crystal + _CrystalProduction_0 * hoursToDeuteriumDeplete
+            _Deuterium_D = _Planet.Deuterium + _DeuteriumProduction_0 * hoursToDeuteriumDeplete
+        ElseIf _DeuteriumProductionPotential = 0 AndAlso _Planet.Deuterium = 0 Then
+            hoursToDeuteriumDeplete = 0
+            _DeuteriumDepletedETA = _Planet.LocalTime
+
+            _Metal_D = _Planet.Metal
+            _Crystal_D = _Planet.Crystal
+            _Deuterium_D = 0
         Else
+            hoursToDeuteriumDeplete = Double.MaxValue
             _DeuteriumDepletedETA = Date.MaxValue
+
+            _Metal_D = Double.MaxValue
+            _Crystal_D = Double.MaxValue
+            _Deuterium_D = Double.MaxValue
         End If
 
-        Dim r As Double = (_SolarSateliteEnergyGeneration + _SolarSateliteEnergyGeneration) / (_EnergyConsumptionPotentialTotal * _DeuteriumConsumptionPotential / _DeuteriumProductionPotential - _FusionReactorEnergyGenerationPotential)
         _FusionReactorEnergyGeneration_0 = _FusionReactorEnergyGenerationPotential
-        _FusionReactorEnergyGeneration_1 = _FusionReactorEnergyGenerationPotential * r
+        'begin: _FusionReactorEnergyGeneration_1
+        Dim solarEnergyGeneration = _SolarSateliteEnergyGeneration + _SolarSateliteEnergyGeneration
+        If solarEnergyGeneration > 0 AndAlso _DeuteriumProductionPotential > 0 Then
+            Dim r As Double = (_EnergyConsumptionPotentialTotal * _DeuteriumConsumptionPotential / _DeuteriumProductionPotential - _FusionReactorEnergyGenerationPotential) / solarEnergyGeneration
+            _FusionReactorEnergyGeneration_1 = _FusionReactorEnergyGenerationPotential / r
+        Else
+            _FusionReactorEnergyGeneration_1 = 0
+        End If
+        'end: _FusionReactorEnergyGeneration_1
 
         _EnergyGenerationPotentialTotal_0 = _SolarPlanetEnergyGeneration + _FusionReactorEnergyGeneration_0 + _SolarSateliteEnergyGeneration
         _EnergyGenerationPotentialTotal_1 = _SolarPlanetEnergyGeneration + _FusionReactorEnergyGeneration_1 + _SolarSateliteEnergyGeneration
@@ -1146,19 +1171,27 @@ Public Class PlanetView
         _EnergyConsumptionTotal_1 = _MetalMineEnergyConsumption_1 + _CrystalMineEnergyConsumption_1 + _DeuteriumSynthesizerEnergyConsumption_1
 
         If _Metal_D < _MetalCapacity Then
-            _MetalOverflowETA = _Planet.LocalTime + New TimeSpan(0, 0, 3600 * (_Metal_D - _Planet.Metal) / _MetalProduction_0) + New TimeSpan(0, 0, 3600 * (1000 * _MetalCapacity - _Metal_D) / _MetalProduction_1)
+            _MetalOverflowETA = _Planet.LocalTime + New TimeSpan(0, 0, 3600 * hoursToDeuteriumDeplete) + New TimeSpan(0, 0, 3600 * (1000 * _MetalCapacity - _Metal_D) / _MetalProduction_1)
         Else
             _MetalOverflowETA = _Planet.LocalTime + New TimeSpan(0, 0, 3600 * (1000 * _MetalCapacity - _Planet.Metal) / _MetalProduction_0)
         End If
         If _Crystal_D < _CrystalCapacity Then
-            _CrystalOverflowETA = _Planet.LocalTime + New TimeSpan(0, 0, 3600 * (_Crystal_D - _Planet.Crystal) / _CrystalProduction_0) + New TimeSpan(0, 0, 3600 * (1000 * _CrystalCapacity - _Crystal_D) / _CrystalProduction_1)
+            _CrystalOverflowETA = _Planet.LocalTime + New TimeSpan(0, 0, 3600 * hoursToDeuteriumDeplete) + New TimeSpan(0, 0, 3600 * (1000 * _CrystalCapacity - _Crystal_D) / _CrystalProduction_1)
         Else
             _CrystalOverflowETA = _Planet.LocalTime + New TimeSpan(0, 0, 3600 * (1000 * _CrystalCapacity - _Planet.Crystal) / _CrystalProduction_0)
         End If
         If _Deuterium_D < _DeuteriumCapacity Then
-            _DeuteriumOverflowETA = _Planet.LocalTime + New TimeSpan(0, 0, 3600 * (_Deuterium_D - _Planet.Deuterium) / _DeuteriumProduction_0) + New TimeSpan(0, 0, 3600 * (1000 * _DeuteriumCapacity - _Deuterium_D) / _DeuteriumProduction_1)
+            If _DeuteriumProduction_1 > 0 Then
+                _DeuteriumOverflowETA = _Planet.LocalTime + New TimeSpan(0, 0, 3600 * hoursToDeuteriumDeplete) + New TimeSpan(0, 0, 3600 * (1000 * _DeuteriumCapacity - _Deuterium_D) / _DeuteriumProduction_1)
+            Else
+                _DeuteriumOverflowETA = Date.MaxValue
+            End If
         Else
-            _DeuteriumOverflowETA = _Planet.LocalTime + New TimeSpan(0, 0, 3600 * (1000 * _DeuteriumCapacity - _Planet.Deuterium) / _DeuteriumProduction_0)
+            If _DeuteriumProduction_0 > 0 Then
+                _DeuteriumOverflowETA = _Planet.LocalTime + New TimeSpan(0, 0, 3600 * (1000 * _DeuteriumCapacity - _Planet.Deuterium) / _DeuteriumProduction_0)
+            Else
+                _DeuteriumOverflowETA = Date.MaxValue
+            End If
         End If
     End Sub
 
@@ -1280,10 +1313,31 @@ Public Class PlanetView
         End Get
     End Property
 
-    <DataObjectMethod(DataObjectMethodType.Select, True)> _
-    Public Function GetUpgradeCommands() As ICollection(Of Command.IUpgradeCommand)
+    '<DataObjectMethod(DataObjectMethodType.Select, True)> _
+    'Public Function GetUpgradeCommands() As ICollection(Of Command.IUpgradeCommand)
 
-        Return _Planet.UpgradeCommandMap.Values
+    '    'Return _Planet.UpgradeCommandList.GetRange(startRowIndex, maximumRows)
+    '    Return _Planet.UpgradeCommandMap.Values
+
+    'End Function
+
+    ''Public Function CountUpgradeCommand(ByVal startRowIndex As Integer, ByVal maximumRows As Integer) As Integer
+
+    ''    Return _Planet.UpgradeCommandMap.Count
+
+    ''End Function
+
+    <DataObjectMethod(DataObjectMethodType.Select, True)> _
+    Public Function GetConstructionCommands() As ICollection(Of Command.ConstructCommand)
+
+        Return _Planet.ConstructionCommandDictionary.Values
+
+    End Function
+
+    <DataObjectMethod(DataObjectMethodType.Select, True)> _
+    Public Function GetResearchCommands() As ICollection(Of Command.ResearchCommand)
+
+        Return _Planet.ResearchCommandDictionary.Values
 
     End Function
 End Class
