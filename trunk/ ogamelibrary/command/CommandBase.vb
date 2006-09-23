@@ -192,7 +192,8 @@ Namespace Command
                 _LastException = Nothing
             Catch ex As Exception
                 _State = CommandState.Failed
-                _LastException = New OGameException(_Uri, ex)
+                '_LastException = New OGameException(_Uri, ex)
+                _LastException = ex
             End Try
         End Sub
 

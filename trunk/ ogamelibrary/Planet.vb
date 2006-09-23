@@ -1,4 +1,3 @@
-'Imports System.Math
 Imports System.Web
 Imports System.Collections.Generic
 
@@ -93,7 +92,8 @@ Public Class Planet
     'Private _CancelConstructionCommand As Command.CancelConstructionCommand
     'Private _CancelResearchCommand As Command.CancelResearchCommand
 
-    Private _UpgradeCommandDictionary As Dictionary(Of Gid, Command.IUpgradeCommand)
+    Private _ConstructionCommandDictionary As Dictionary(Of Gid, Command.ConstructCommand)
+    Private _ResearchCommandDictionary As Dictionary(Of Gid, Command.ResearchCommand)
 
 #End Region
 
@@ -231,7 +231,8 @@ Public Class Planet
         AddHandler _FleetCommand.Complete, AddressOf FleetCommand_Complete
         AddHandler _DefenseCommand.Complete, AddressOf DefenseCommand_Complete
 
-        _UpgradeCommandDictionary = New Dictionary(Of Gid, Command.IUpgradeCommand)
+        _ConstructionCommandDictionary = New Dictionary(Of Gid, Command.ConstructCommand)
+        _ResearchCommandDictionary = New Dictionary(Of Gid, Command.ResearchCommand)
 
     End Sub
 
@@ -449,9 +450,15 @@ Public Class Planet
         End Get
     End Property
 
-    Public ReadOnly Property UpgradeCommandMap() As Dictionary(Of Gid, Command.IUpgradeCommand)
+    Public ReadOnly Property ConstructionCommandDictionary() As Dictionary(Of Gid, Command.ConstructCommand)
         Get
-            Return _UpgradeCommandDictionary
+            Return _ConstructionCommandDictionary
+        End Get
+    End Property
+
+    Public ReadOnly Property ResearchCommandDictionary() As Dictionary(Of Gid, Command.ResearchCommand)
+        Get
+            Return _ResearchCommandDictionary
         End Get
     End Property
 
@@ -533,25 +540,25 @@ Public Class Planet
         End With
     End Sub
 
-    Private Sub AddConstructionCommand(ByVal gid As Gid, ByVal roboticsFactoryLevel As Integer, ByVal naniteFactoryLevel As Integer)
+    Private Sub SetConstructionCommand(ByVal gid As Gid, ByVal roboticsFactoryLevel As Integer, ByVal naniteFactoryLevel As Integer)
 
         Dim level As Integer = GetBuildingLevel(gid)
         Dim cmd As Command.ConstructCommand = New Command.ConstructCommand(_ServerName, _Id, gid, level, roboticsFactoryLevel, naniteFactoryLevel, AddressOf ValidateCommandEventHandler)
         AddHandler cmd.Complete, AddressOf BuildingsCommand_Complete
         AddHandler cmd.Executing, AddressOf ExecutingEventHandler
 
-        _UpgradeCommandDictionary.Add(gid, cmd)
+        _ConstructionCommandDictionary(gid) = cmd
 
     End Sub
 
-    Private Sub AddResearchCommand(ByVal gid As Gid, ByVal researchLabLevel As Integer)
+    Private Sub SetResearchCommand(ByVal gid As Gid, ByVal researchLabLevel As Integer)
 
-        Dim level As Integer = GetBuildingLevel(gid)
+        Dim level As Integer = GetResearchLevel(gid)
         Dim cmd As Command.ResearchCommand = New Command.ResearchCommand(_ServerName, _Id, gid, level, researchLabLevel, AddressOf ValidateCommandEventHandler)
         AddHandler cmd.Complete, AddressOf ResearchLabCommand_Complete
         AddHandler cmd.Executing, AddressOf ExecutingEventHandler
 
-        _UpgradeCommandDictionary.Add(gid, cmd)
+        _ResearchCommandDictionary(gid) = cmd
 
     End Sub
 
@@ -690,6 +697,9 @@ Public Class Planet
 
         If page.Parse() Then
             _BuildingLevelMap = page.LevelMap
+
+            'todo: sum up total level, which will determine the number of available fields
+
             _ConstructionTimeLeft = page.TimeLeft
             _ConstructionSecondsLeft = page.SecondsLeft
 
@@ -698,21 +708,21 @@ Public Class Planet
             Dim roboticsFactoryLevel As Integer = GetBuildingLevel(Gid.RoboticsFactory)
             Dim naniteFactoryLevel As Integer = GetBuildingLevel(Gid.NaniteFactory)
 
-            AddConstructionCommand(Gid.MetalMine, roboticsFactoryLevel, naniteFactoryLevel)
-            AddConstructionCommand(Gid.CrystalMine, roboticsFactoryLevel, naniteFactoryLevel)
-            AddConstructionCommand(Gid.DeuteriumSynthesizer, roboticsFactoryLevel, naniteFactoryLevel)
-            AddConstructionCommand(Gid.SolarPlant, roboticsFactoryLevel, naniteFactoryLevel)
-            AddConstructionCommand(Gid.FusionReactor, roboticsFactoryLevel, naniteFactoryLevel)
-            AddConstructionCommand(Gid.RoboticsFactory, roboticsFactoryLevel, naniteFactoryLevel)
+            SetConstructionCommand(Gid.MetalMine, roboticsFactoryLevel, naniteFactoryLevel)
+            SetConstructionCommand(Gid.CrystalMine, roboticsFactoryLevel, naniteFactoryLevel)
+            SetConstructionCommand(Gid.DeuteriumSynthesizer, roboticsFactoryLevel, naniteFactoryLevel)
+            SetConstructionCommand(Gid.SolarPlant, roboticsFactoryLevel, naniteFactoryLevel)
+            SetConstructionCommand(Gid.FusionReactor, roboticsFactoryLevel, naniteFactoryLevel)
+            SetConstructionCommand(Gid.RoboticsFactory, roboticsFactoryLevel, naniteFactoryLevel)
             'AddConstructionCommand(Gid.NaniteFactory, roboticsFactoryLevel, naniteFactoryLevel)
-            AddConstructionCommand(Gid.Shipyard, roboticsFactoryLevel, naniteFactoryLevel)
-            AddConstructionCommand(Gid.MetalStorage, roboticsFactoryLevel, naniteFactoryLevel)
-            AddConstructionCommand(Gid.CrystalStorage, roboticsFactoryLevel, naniteFactoryLevel)
-            AddConstructionCommand(Gid.DeuteriumTank, roboticsFactoryLevel, naniteFactoryLevel)
-            AddConstructionCommand(Gid.ResearchLab, roboticsFactoryLevel, naniteFactoryLevel)
+            SetConstructionCommand(Gid.Shipyard, roboticsFactoryLevel, naniteFactoryLevel)
+            SetConstructionCommand(Gid.MetalStorage, roboticsFactoryLevel, naniteFactoryLevel)
+            SetConstructionCommand(Gid.CrystalStorage, roboticsFactoryLevel, naniteFactoryLevel)
+            SetConstructionCommand(Gid.DeuteriumTank, roboticsFactoryLevel, naniteFactoryLevel)
+            SetConstructionCommand(Gid.ResearchLab, roboticsFactoryLevel, naniteFactoryLevel)
             'AddConstructionCommand(Gid.Terraformer, roboticsFactoryLevel, naniteFactoryLevel)
             'AddConstructionCommand(Gid.AllianceDepot, roboticsFactoryLevel, naniteFactoryLevel)
-            AddConstructionCommand(Gid.MissileSilo, roboticsFactoryLevel, naniteFactoryLevel)
+            SetConstructionCommand(Gid.MissileSilo, roboticsFactoryLevel, naniteFactoryLevel)
 
             'end: load construction commands
 
@@ -739,18 +749,18 @@ Public Class Planet
 
             Dim researchLabLevel As Integer = GetBuildingLevel(Gid.ResearchLab)
 
-            AddResearchCommand(Gid.EspionageTechnology, researchLabLevel)
-            AddResearchCommand(Gid.ComputerTechnology, researchLabLevel)
-            AddResearchCommand(Gid.WeaponsTechnology, researchLabLevel)
-            AddResearchCommand(Gid.ShieldingTechnology, researchLabLevel)
-            AddResearchCommand(Gid.ArmourTechnology, researchLabLevel)
-            AddResearchCommand(Gid.EnergyTechnology, researchLabLevel)
-            AddResearchCommand(Gid.HyperspaceTechnology, researchLabLevel)
-            AddResearchCommand(Gid.CombustionDrive, researchLabLevel)
-            AddResearchCommand(Gid.ImpulseDrive, researchLabLevel)
-            AddResearchCommand(Gid.HyperspaceDrive, researchLabLevel)
-            AddResearchCommand(Gid.LaserTechnology, researchLabLevel)
-            AddResearchCommand(Gid.IonTechnology, researchLabLevel)
+            SetResearchCommand(Gid.EspionageTechnology, researchLabLevel)
+            SetResearchCommand(Gid.ComputerTechnology, researchLabLevel)
+            SetResearchCommand(Gid.WeaponsTechnology, researchLabLevel)
+            SetResearchCommand(Gid.ShieldingTechnology, researchLabLevel)
+            SetResearchCommand(Gid.ArmourTechnology, researchLabLevel)
+            SetResearchCommand(Gid.EnergyTechnology, researchLabLevel)
+            SetResearchCommand(Gid.HyperspaceTechnology, researchLabLevel)
+            SetResearchCommand(Gid.CombustionDrive, researchLabLevel)
+            SetResearchCommand(Gid.ImpulseDrive, researchLabLevel)
+            SetResearchCommand(Gid.HyperspaceDrive, researchLabLevel)
+            SetResearchCommand(Gid.LaserTechnology, researchLabLevel)
+            SetResearchCommand(Gid.IonTechnology, researchLabLevel)
             'AddResearchCommand(Gid.PlasmaTechnology, researchLabLevel)
             'AddResearchCommand(Gid.IntergalacticResearchNetwork, researchLabLevel)
             'AddResearchCommand(Gid.GravitonTechnology, researchLabLevel)
@@ -788,6 +798,7 @@ Public Class Planet
         If metalCost > _Metal OrElse crystalCost > _Crystal OrElse deuteriumCost > _Deuterium Then
             valid = False
         Else
+            'todo: check if max fields being reached
             For Each level As KeyValuePair(Of Gid, Integer) In dependencies
                 If Not ValidateLevel(_BuildingLevelMap, level) AndAlso Not ValidateLevel(_ResearchLevelMap, level) Then
                     valid = False
